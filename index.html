@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Hub</title>
+  <link rel="stylesheet" href="assets/design-tokens.css">
+  <link rel="stylesheet" href="assets/hub.css">
+</head>
+<body>
+
+<header class="hub-topbar">
+  <div class="hub-topbar-left">
+    <span class="hub-logo">S</span>
+    <div class="hub-topbar-sep"></div>
+    <span class="hub-topbar-label">Gestionnaire Hub</span>
+  </div>
+  <div class="hub-topbar-right">
+    <div class="hub-health" id="healthPill">
+      <span class="hub-health-dot" id="healthDot"></span>
+      <span id="healthText">…</span>
+    </div>
+    <input type="text" id="apiUrl" class="hub-input" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="hub-input" placeholder="X-Admin-Token" autocomplete="off">
+    <input type="text" id="outilUrl" class="hub-input" placeholder="URL Outil" autocomplete="off">
+    <button id="saveConfig" class="hub-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<main class="hub-main">
+  <!-- Header -->
+  <div class="hub-hero">
+    <div class="hub-overline">Interne · Admin</div>
+    <h1 class="hub-title">Gestionnaire</h1>
+    <p class="hub-subtitle">Pilotage des scrapers, validation des sources, carte des agences. Tout commence ici.</p>
+  </div>
+
+  <!-- Token warning -->
+  <div class="hub-warning" id="tokenWarning" hidden>
+    Renseigne le <code>X-Admin-Token</code> en haut à droite pour activer les outils admin.
+  </div>
+
+  <!-- Navigation tiles -->
+  <section class="hub-tiles">
+    <a class="hub-tile" id="tileApi" href="#" target="_blank" rel="noopener">
+      <div class="hub-tile-icon" style="background:var(--accent-100);color:var(--accent-700)">API</div>
+      <div class="hub-tile-body">
+        <div class="hub-tile-title">API Real Estate</div>
+        <div class="hub-tile-desc">Swagger, endpoints, tests</div>
+      </div>
+      <span class="hub-tile-arrow">&rarr;</span>
+    </a>
+    <a class="hub-tile" href="docs/index.html" target="_blank" rel="noopener">
+      <div class="hub-tile-icon" style="background:color-mix(in oklch, var(--accent) 12%, transparent);color:var(--accent)">DOC</div>
+      <div class="hub-tile-body">
+        <div class="hub-tile-title">Documentation API</div>
+        <div class="hub-tile-desc">Guide d'integration, routes, exemples</div>
+      </div>
+      <span class="hub-tile-arrow">&rarr;</span>
+    </a>
+    <a class="hub-tile" id="tileOutil" href="http://localhost:3005" target="_blank" rel="noopener">
+      <div class="hub-tile-icon" style="background:color-mix(in oklch, var(--success) 15%, transparent);color:var(--success)">PLT</div>
+      <div class="hub-tile-body">
+        <div class="hub-tile-title">Plateforme</div>
+        <div class="hub-tile-desc">Recherche annonces · interface publique</div>
+      </div>
+      <span class="hub-tile-arrow">&rarr;</span>
+    </a>
+    <div class="hub-tile" id="tileAdmin">
+      <div class="hub-tile-icon" style="background:color-mix(in oklch, var(--warning) 18%, transparent);color:var(--warning)">ADM</div>
+      <div class="hub-tile-body">
+        <div class="hub-tile-title">Gestionnaire Admin</div>
+        <div class="hub-tile-desc">Outils d'administration internes</div>
+      </div>
+      <span class="hub-tile-expand" id="adminExpand">&#9660;</span>
+    </div>
+  </section>
+
+  <!-- Admin tools sub-menu -->
+  <section class="hub-tools" id="adminTools">
+    <a class="hub-tool-card" href="admin/agencies-table.html">
+      <span class="hub-tool-badge hub-tool-badge-ok">Disponible</span>
+      <div class="hub-tool-title">Tableau agences par CP</div>
+      <div class="hub-tool-desc">Vue groupée par code postal, filtres, export CSV</div>
+    </a>
+    <a class="hub-tool-card" href="admin/sources-validation.html">
+      <span class="hub-tool-badge hub-tool-badge-ok">Disponible</span>
+      <div class="hub-tool-title">Validation sources scraping</div>
+      <div class="hub-tool-desc">Valider / rejeter les configs URL avant SCRAP INIT</div>
+    </a>
+    <a class="hub-tool-card" href="admin/placeholders.html">
+      <span class="hub-tool-badge hub-tool-badge-ok">Disponible</span>
+      <div class="hub-tool-title">Registre placeholders URL</div>
+      <div class="hub-tool-desc">Mappings département → slug, formules, résolution</div>
+    </a>
+    <a class="hub-tool-card" href="admin/scraping-timers.html">
+      <span class="hub-tool-badge hub-tool-badge-ok">Disponible</span>
+      <div class="hub-tool-title">Timers de scraping</div>
+      <div class="hub-tool-desc">Intervalle personnalisé par source, contrôle scheduler</div>
+    </a>
+    <a class="hub-tool-card" href="admin/monitoring.html">
+      <span class="hub-tool-badge hub-tool-badge-ok">Disponible</span>
+      <div class="hub-tool-title">Monitoring & Logs</div>
+      <div class="hub-tool-desc">Santé scrapers, jobs en cours, logs pipeline</div>
+    </a>
+    <div class="hub-tool-card hub-tool-disabled">
+      <span class="hub-tool-badge hub-tool-badge-v2">V2</span>
+      <div class="hub-tool-title">Carte agences</div>
+      <div class="hub-tool-desc">Vue cartographique Leaflet avec clustering GPS</div>
+    </div>
+    <div class="hub-tool-card hub-tool-disabled">
+      <span class="hub-tool-badge hub-tool-badge-v2">V2</span>
+      <div class="hub-tool-title">Explorateur annonces</div>
+      <div class="hub-tool-desc">Recherche canonical_ads, doublons cross-sources</div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="hub-stats-section" id="statsSection">
+    <div class="hub-stats-header">
+      <h2 class="hub-stats-title">Stats agences en base</h2>
+      <span class="hub-stats-time" id="statsUpdated"></span>
+    </div>
+    <div class="hub-stats-grid" id="statsGrid">
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Total agences</div>
+        <div class="hub-stat-value" id="statTotal">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Scraped</div>
+        <div class="hub-stat-value" style="color:var(--success)" id="statScraped">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Pending</div>
+        <div class="hub-stat-value" style="color:var(--warning)" id="statPending">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">To scrape</div>
+        <div class="hub-stat-value" style="color:var(--info)" id="statToScrape">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Skip</div>
+        <div class="hub-stat-value" style="color:var(--danger)" id="statSkip">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Closed</div>
+        <div class="hub-stat-value" id="statClosed">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Avec site web</div>
+        <div class="hub-stat-value" id="statWebsite">–</div>
+      </div>
+      <div class="hub-stat-card">
+        <div class="hub-stat-label">Sans site web</div>
+        <div class="hub-stat-value" style="color:var(--ink-3)" id="statNoWebsite">–</div>
+      </div>
+    </div>
+    <div id="statsSources"></div>
+    <div id="statsCities"></div>
+  </section>
+</main>
+
+<script src="assets/common.js"></script>
+<script src="assets/hub.js"></script>
+</body>
+</html>

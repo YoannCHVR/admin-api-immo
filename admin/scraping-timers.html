@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Timers de scraping</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <a href="../index.html" class="back-link">&larr; Hub</a>
+    <h1>Timers de scraping par source</h1>
+  </div>
+  <div class="topbar-config">
+    <input type="text" id="apiUrl" placeholder="http://localhost:8000" autocomplete="off">
+    <input type="password" id="adminToken" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" type="button">Sauver</button>
+    <span class="health-dot pending" id="healthDot" title="Santé API"></span>
+  </div>
+</header>
+
+<section class="sv-toolbar">
+  <div class="sv-toolbar-left">
+    <div class="scheduler-controls">
+      <span class="scheduler-status" id="schedulerStatus">Scheduler : …</span>
+      <button id="schedulerStartBtn" type="button" class="btn btn-sm btn-success">Démarrer</button>
+      <button id="schedulerStopBtn" type="button" class="btn btn-sm btn-danger">Arrêter</button>
+      <button id="schedulerRunBtn" type="button" class="btn btn-sm btn-secondary">Lancer un cycle</button>
+    </div>
+  </div>
+  <div class="sv-toolbar-right">
+    <button id="reloadBtn" type="button" class="btn btn-secondary">Recharger</button>
+  </div>
+</section>
+
+<main>
+  <div class="timer-info" id="globalInfo"></div>
+
+  <!-- Défauts par tier -->
+  <section class="tier-defaults-section" id="tierDefaultsSection">
+    <h2>Défauts par tier</h2>
+    <div class="cascade-legend">
+      <span class="cascade-item cascade-custom">Source custom</span>
+      <span class="cascade-arrow">&gt;</span>
+      <span class="cascade-item cascade-tier">Défaut tier</span>
+      <span class="cascade-arrow">&gt;</span>
+      <span class="cascade-item cascade-global">Global (chaque cycle)</span>
+    </div>
+    <div class="tier-cards" id="tierCards"><div class="loading">Chargement…</div></div>
+  </section>
+
+  <!-- Tableau sources -->
+  <div id="resultsContainer"><div class="loading">Chargement…</div></div>
+</main>
+
+<!-- Modale reset confirmation -->
+<div class="modal-overlay" id="resetModal" hidden>
+  <div class="modal">
+    <h3>Reset du scraper <code id="resetSourceName"></code></h3>
+    <p style="color:#7a1f1f;font-size:13px;line-height:1.5;">
+      Cette action va <strong>supprimer toutes les annonces</strong> (ad_sources + canonical_ads orphelins)
+      et <strong>réinitialiser les segments SCRAP INIT</strong> pour cette source.<br>
+      La config département (URL pattern, validation) est conservée.
+    </p>
+    <p style="font-size:12px;color:#6b7280;">Cette action est <strong>irréversible</strong>.</p>
+    <div class="modal-actions">
+      <button id="resetCancel" type="button" class="btn btn-secondary">Annuler</button>
+      <button id="resetConfirm" type="button" class="btn btn-danger">Confirmer le reset</button>
+    </div>
+  </div>
+</div>
+
+<footer class="stats-footer">
+  <span id="statsTotal">Sources : –</span>
+  <span id="statsCustom">Timers personnalisés : –</span>
+  <span id="statsDefault">Utilisant défaut global : –</span>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/scraping-timers.js"></script>
+</body>
+</html>

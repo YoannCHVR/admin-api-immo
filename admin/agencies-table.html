@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Tableau agences par CP</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <a href="../index.html" class="back-link">← Hub</a>
+    <h1>Agences par code postal</h1>
+  </div>
+  <div class="topbar-config">
+    <input type="text" id="apiUrl" placeholder="http://localhost:8000" autocomplete="off">
+    <input type="password" id="adminToken" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" type="button">Sauver</button>
+    <span class="health-dot pending" id="healthDot" title="Santé API"></span>
+  </div>
+</header>
+
+<section class="filters">
+  <div class="filter-group">
+    <label>Statut</label>
+    <div class="checkboxes" id="statusFilters">
+      <label><input type="checkbox" value="pending" checked> pending</label>
+      <label><input type="checkbox" value="to_scrape" checked> to_scrape</label>
+      <label><input type="checkbox" value="scraped" checked> scraped</label>
+      <label><input type="checkbox" value="skip" checked> skip</label>
+      <label><input type="checkbox" value="closed" checked> closed</label>
+    </div>
+  </div>
+  <div class="filter-group">
+    <label for="deptFilter">Département</label>
+    <select id="deptFilter"><option value="">Tous</option></select>
+  </div>
+  <div class="filter-group">
+    <label for="sourceFilter">Source</label>
+    <select id="sourceFilter"><option value="">Toutes</option></select>
+  </div>
+  <div class="filter-group grow">
+    <label for="searchFilter">Recherche (nom / ville / adresse)</label>
+    <input type="text" id="searchFilter" placeholder="ex: durand immobilier" autocomplete="off">
+  </div>
+  <div class="filter-actions">
+    <button id="reloadBtn" type="button">Recharger</button>
+    <button id="resetBtn" type="button" class="secondary">Reset</button>
+    <button id="exportBtn" type="button" class="primary">Export CSV</button>
+  </div>
+</section>
+
+<main id="resultsContainer">
+  <div class="loading">Chargement…</div>
+</main>
+
+<footer class="stats-footer">
+  <span id="statsShown">Affichées : –</span>
+  <span id="statsTotal">Total DB : –</span>
+  <span id="statsCp">Codes postaux : –</span>
+  <span id="statsNoGps">Sans GPS : –</span>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/agencies-table.js"></script>
+</body>
+</html>

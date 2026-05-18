@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Real Estate — Documentation</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 15px; color: #1f2937; background: #f9fafb; line-height: 1.6;
+    }
+
+    /* Header */
+    .doc-header {
+      background: #1f2937; color: #f9fafb; padding: 32px 0; border-bottom: 3px solid #3b82f6;
+    }
+    .doc-header .container { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    .doc-header h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .doc-header p { color: #9ca3af; font-size: 15px; }
+    .doc-header .version { display: inline-block; background: #3b82f6; color: white; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; margin-left: 12px; vertical-align: middle; }
+
+    /* Layout */
+    .doc-body { display: flex; max-width: 1200px; margin: 0 auto; min-height: calc(100vh - 120px); }
+    .doc-nav {
+      width: 240px; flex-shrink: 0; background: white; border-right: 1px solid #e5e7eb;
+      padding: 24px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .doc-nav a {
+      display: block; padding: 8px 24px; color: #4b5563; text-decoration: none; font-size: 13px; border-left: 3px solid transparent;
+    }
+    .doc-nav a:hover { color: #1f2937; background: #f3f4f6; }
+    .doc-nav a.active { color: #3b82f6; border-left-color: #3b82f6; font-weight: 600; }
+    .doc-nav .nav-section { padding: 16px 24px 6px; font-size: 11px; font-weight: 700; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.05em; }
+    .doc-content { flex: 1; padding: 32px 48px; max-width: 720px; }
+
+    /* Typography */
+    h2 { font-size: 22px; font-weight: 700; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
+    h2:first-of-type { margin-top: 0; }
+    h3 { font-size: 17px; font-weight: 600; margin: 32px 0 12px; color: #374151; }
+    p { margin-bottom: 12px; }
+    ul, ol { margin: 0 0 16px 24px; }
+    li { margin-bottom: 4px; }
+
+    /* Code */
+    code {
+      font-family: 'SF Mono', Monaco, 'Fira Code', monospace; font-size: 13px;
+      background: #f3f4f6; padding: 2px 6px; border-radius: 4px; color: #4b5563;
+    }
+    pre {
+      background: #1f2937; color: #e5e7eb; padding: 16px 20px; border-radius: 8px;
+      overflow-x: auto; margin: 12px 0 20px; font-size: 13px; line-height: 1.5; position: relative;
+    }
+    pre code { background: none; padding: 0; color: inherit; }
+    .copy-btn {
+      position: absolute; top: 8px; right: 8px; background: #374151; color: #9ca3af;
+      border: none; border-radius: 4px; padding: 4px 10px; font-size: 11px; cursor: pointer;
+    }
+    .copy-btn:hover { color: #f9fafb; }
+
+    /* Endpoint blocks */
+    .endpoint {
+      background: white; border: 1px solid #e5e7eb; border-radius: 8px;
+      margin: 16px 0 24px; overflow: hidden;
+    }
+    .endpoint-header {
+      display: flex; align-items: center; gap: 12px; padding: 14px 18px;
+      background: #f9fafb; border-bottom: 1px solid #e5e7eb;
+    }
+    .method {
+      display: inline-block; padding: 3px 10px; border-radius: 4px;
+      font-size: 12px; font-weight: 700; color: white; font-family: monospace;
+    }
+    .method-get { background: #10b981; }
+    .method-post { background: #3b82f6; }
+    .endpoint-path { font-family: monospace; font-size: 14px; font-weight: 600; color: #1f2937; }
+    .endpoint-desc { padding: 14px 18px; font-size: 14px; color: #4b5563; }
+
+    /* Params table */
+    .params-table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; }
+    .params-table th {
+      text-align: left; padding: 10px 14px; background: #f9fafb; font-size: 12px;
+      text-transform: uppercase; color: #6b7280; font-weight: 600; border-bottom: 1px solid #e5e7eb;
+    }
+    .params-table td { padding: 10px 14px; border-bottom: 1px solid #f3f4f6; font-size: 13px; vertical-align: top; }
+    .params-table code { font-size: 12px; }
+    .param-required { color: #ef4444; font-size: 10px; font-weight: 600; text-transform: uppercase; }
+    .param-optional { color: #9ca3af; font-size: 10px; }
+
+    /* Badges */
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+    .badge-info { background: #dbeafe; color: #1d4ed8; }
+    .badge-warn { background: #fef3c7; color: #92400e; }
+    .badge-tier { background: #f3f4f6; color: #4b5563; }
+
+    /* Alert boxes */
+    .alert { padding: 14px 18px; border-radius: 8px; margin: 16px 0; font-size: 14px; }
+    .alert-info { background: #eff6ff; border-left: 4px solid #3b82f6; color: #1e40af; }
+    .alert-warn { background: #fefce8; border-left: 4px solid #f59e0b; color: #92400e; }
+    .alert-danger { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .doc-body { flex-direction: column; }
+      .doc-nav { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid #e5e7eb; }
+      .doc-content { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="doc-header">
+  <div class="container">
+    <h1>API Real Estate <span class="version">v1.0</span></h1>
+    <p>Agrégateur d'annonces immobilières France — Documentation API REST</p>
+  </div>
+</header>
+
+<div class="doc-body">
+
+  <nav class="doc-nav">
+    <div class="nav-section">Pour commencer</div>
+    <a href="#introduction">Introduction</a>
+    <a href="#auth">Authentification</a>
+    <a href="#base-url">Base URL</a>
+    <a href="#rate-limits">Limites de requetes</a>
+    <a href="#errors">Codes d'erreur</a>
+    <div class="nav-section">Endpoints</div>
+    <a href="#search">Rechercher des annonces</a>
+    <a href="#detail">Detail d'une annonce</a>
+    <a href="#stats">Statistiques</a>
+    <a href="#sources">Sources disponibles</a>
+    <div class="nav-section">Guides</div>
+    <a href="#tiers">Systeme de tiers</a>
+    <a href="#examples">Exemples de code</a>
+    <a href="#pagination">Pagination</a>
+  </nav>
+
+  <main class="doc-content">
+
+    <!-- ── Introduction ──────────────────────────── -->
+    <h2 id="introduction">Introduction</h2>
+    <p>L'API Real Estate agrège les annonces immobilières de multiples sources en France (portails, réseaux d'agences, agences indépendantes) et les expose via une API REST unifiée.</p>
+    <p>Chaque annonce est dédupliquée — un même bien vu sur plusieurs sites est regroupé en une seule entrée (<strong>canonical ad</strong>) avec la liste de ses sources.</p>
+
+    <div class="alert alert-info">
+      <strong>Swagger UI</strong> — Une documentation interactive complète est disponible à <code>{BASE_URL}/docs</code>.
+    </div>
+
+    <!-- ── Auth ──────────────────────────────────── -->
+    <h2 id="auth">Authentification</h2>
+    <p>Toutes les routes <code>/api/*</code> nécessitent un header <code>X-API-Token</code>.</p>
+
+    <pre><code>curl -H "X-API-Token: VOTRE_TOKEN" https://api.example.com/api/ads</code><button class="copy-btn" onclick="copyCode(this)">Copier</button></pre>
+
+    <p>Le token est fourni lors de l'onboarding. Chaque token est lié à un compte avec un quota de requêtes.</p>
+
+    <div class="alert alert-warn">
+      <strong>Ne partagez jamais votre token.</strong> Il est personnel et donne accès à l'ensemble des données de votre plan.
+    </div>
+
+    <!-- ── Base URL ──────────────────────────────── -->
+    <h2 id="base-url">Base URL</h2>
+    <pre><code>https://api.example.com</code></pre>
+    <p>En développement local : <code>http://localhost:8000</code></p>
+
+    <!-- ── Rate limits ───────────────────────────── -->
+    <h2 id="rate-limits">Limites de requetes</h2>
+    <p>Les limites dépendent de votre plan :</p>
+
+    <table class="params-table">
+      <thead><tr><th>Plan</th><th>Requetes / min</th><th>Requetes / jour</th><th>Tiers accessibles</th></tr></thead>
+      <tbody>
+        <tr><td>Gratuit</td><td>10</td><td>500</td><td>Tier 2</td></tr>
+        <tr><td>Standard</td><td>60</td><td>5 000</td><td>Tier 2 + 3</td></tr>
+        <tr><td>Premium</td><td>120</td><td>50 000</td><td>Tier 2 + 3 + 4</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-danger">
+      <strong>Tier 1 (LeBonCoin, SeLoger, BienIci, Zefir)</strong> n'est jamais accessible via l'API. Ces données sont à usage personnel uniquement pour des raisons juridiques.
+    </div>
+
+    <p>En cas de dépassement, l'API retourne <code>429 Too Many Requests</code> avec un header <code>Retry-After</code>.</p>
+
+    <!-- ── Errors ────────────────────────────────── -->
+    <h2 id="errors">Codes d'erreur</h2>
+    <table class="params-table">
+      <thead><tr><th>Code</th><th>Signification</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><code>200</code></td><td>Succès</td><td>—</td></tr>
+        <tr><td><code>400</code></td><td>Paramètres invalides</td><td>Vérifier les query params</td></tr>
+        <tr><td><code>403</code></td><td>Token invalide</td><td>Vérifier <code>X-API-Token</code></td></tr>
+        <tr><td><code>404</code></td><td>Ressource introuvable</td><td>Vérifier l'ID</td></tr>
+        <tr><td><code>422</code></td><td>Header manquant</td><td>Ajouter <code>X-API-Token</code></td></tr>
+        <tr><td><code>429</code></td><td>Rate limit dépassé</td><td>Attendre <code>Retry-After</code> secondes</td></tr>
+        <tr><td><code>500</code></td><td>Erreur serveur</td><td>Réessayer plus tard</td></tr>
+      </tbody>
+    </table>
+
+    <!-- ── GET /api/ads ──────────────────────────── -->
+    <h2 id="search">Rechercher des annonces</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/ads</span>
+      </div>
+      <div class="endpoint-desc">Recherche paginée dans les annonces immobilières avec filtres multiples.</div>
+    </div>
+
+    <h3>Paramètres</h3>
+    <table class="params-table">
+      <thead><tr><th>Paramètre</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>city</code></td><td>string</td><td>Nom de ville (insensible à la casse, converti en majuscules). Ex: <code>TOURS</code></td></tr>
+        <tr><td><code>zipcode</code></td><td>string</td><td>Code postal ou préfixe. <code>37</code> = tout le département, <code>37000</code> = ville exacte</td></tr>
+        <tr><td><code>price_min</code></td><td>int</td><td>Prix minimum en euros</td></tr>
+        <tr><td><code>price_max</code></td><td>int</td><td>Prix maximum en euros</td></tr>
+        <tr><td><code>surface_min</code></td><td>float</td><td>Surface minimum en m²</td></tr>
+        <tr><td><code>surface_max</code></td><td>float</td><td>Surface maximum en m²</td></tr>
+        <tr><td><code>rooms_min</code></td><td>int</td><td>Nombre minimum de pièces</td></tr>
+        <tr><td><code>rooms_max</code></td><td>int</td><td>Nombre maximum de pièces</td></tr>
+        <tr><td><code>property_type</code></td><td>string</td><td><code>appartement</code>, <code>maison</code>, <code>terrain</code>, <code>parking</code></td></tr>
+        <tr><td><code>prixm2_max</code></td><td>int</td><td>Prix max au m² (annonces sans prix/surface sont conservées)</td></tr>
+        <tr><td><code>tier</code></td><td>int[]</td><td>Filtrer par tier (1-4). Répétable : <code>?tier=2&tier=3</code></td></tr>
+        <tr><td><code>q</code></td><td>string</td><td>Recherche textuelle dans le titre</td></tr>
+        <tr><td><code>page</code></td><td>int</td><td>Page (défaut: 1)</td></tr>
+        <tr><td><code>per_page</code></td><td>int</td><td>Résultats par page (défaut: 50, max: 200)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Exemple de requete</h3>
+    <pre><code>GET /api/ads?zipcode=37&property_type=appartement&price_max=120000&surface_min=30&per_page=20</code><button class="copy-btn" onclick="copyCode(this)">Copier</button></pre>
+
+    <h3>Réponse</h3>
+    <pre><code>{
+  "items": [
+    {
+      "id": 12345,
+      "fingerprint": "a1b2c3d4...",
+      "title": "Appartement 3 pièces 65 m²",
+      "price": 95000,
+      "surface": 65.0,
+      "rooms": 3,
+      "property_type": "appartement",
+      "city": "TOURS",
+      "zipcode": "37000",
+      "description": "Bel appartement lumineux...",
+      "images": ["https://..."],
+      "tier": 2,
+      "source_names": ["pap", "entreparticuliers"],
+      "first_seen_at": "2026-04-15T10:30:00+00:00",
+      "last_seen_at": "2026-04-29T14:00:00+00:00"
+    }
+  ],
+  "total": 145,
+  "page": 1,
+  "per_page": 20
+}</code></pre>
+
+    <div class="alert alert-info">
+      <strong>Déduplication</strong> — <code>source_names</code> liste tous les sites où cette annonce a été vue. Un même bien peut apparaitre sur 2-3 sources.
+    </div>
+
+    <!-- ── GET /api/ads/{id} ─────────────────────── -->
+    <h2 id="detail">Detail d'une annonce</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/ads/{id}</span>
+      </div>
+      <div class="endpoint-desc">Récupère le détail complet d'une annonce avec toutes ses sources.</div>
+    </div>
+
+    <h3>Réponse</h3>
+    <pre><code>{
+  "id": 12345,
+  "title": "Appartement 3 pièces 65 m²",
+  "price": 95000,
+  "surface": 65.0,
+  "rooms": 3,
+  "property_type": "appartement",
+  "city": "TOURS",
+  "zipcode": "37000",
+  "description": "Bel appartement lumineux...",
+  "images": ["https://..."],
+  "tier": 2,
+  "source_names": ["pap", "entreparticuliers"],
+  "first_seen_at": "2026-04-15T10:30:00+00:00",
+  "last_seen_at": "2026-04-29T14:00:00+00:00",
+  "sources": [
+    {
+      "id": 456,
+      "source": "pap",
+      "external_id": "462700742",
+      "url": "https://www.pap.fr/annonces/...",
+      "first_seen_at": "2026-04-15T10:30:00+00:00",
+      "last_seen_at": "2026-04-29T14:00:00+00:00"
+    },
+    {
+      "id": 789,
+      "source": "entreparticuliers",
+      "external_id": "22168507",
+      "url": "https://www.entreparticuliers.com/...",
+      "first_seen_at": "2026-04-20T08:00:00+00:00",
+      "last_seen_at": "2026-04-28T16:30:00+00:00"
+    }
+  ]
+}</code></pre>
+
+    <!-- ── GET /api/stats ────────────────────────── -->
+    <h2 id="stats">Statistiques</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/stats</span>
+      </div>
+      <div class="endpoint-desc">Statistiques globales sur les annonces en base.</div>
+    </div>
+
+    <h3>Réponse</h3>
+    <pre><code>{
+  "canonical_ads": 4532,
+  "ad_sources": 5890,
+  "duplicates_detected": 1358,
+  "by_source": {
+    "leboncoin": 2200,
+    "entreparticuliers": 1100,
+    "century21": 520,
+    "pap": 280,
+    "iad": 210,
+    "square_habitat": 175,
+    "era_immobilier": 63,
+    "human_immobilier": 166,
+    "guy_hoquet": 36
+  }
+}</code></pre>
+
+    <!-- ── GET /api/sources ──────────────────────── -->
+    <h2 id="sources">Sources disponibles</h2>
+
+    <div class="endpoint">
+      <div class="endpoint-header">
+        <span class="method method-get">GET</span>
+        <span class="endpoint-path">/api/sources</span>
+      </div>
+      <div class="endpoint-desc">Liste les sources de scraping actives.</div>
+    </div>
+
+    <h3>Réponse</h3>
+    <pre><code>[
+  {"name": "leboncoin", "type": "api"},
+  {"name": "pap", "type": "html"},
+  {"name": "entreparticuliers", "type": "api"},
+  {"name": "century21", "type": "html"},
+  {"name": "guy_hoquet", "type": "html"},
+  {"name": "iad", "type": "html"},
+  {"name": "square_habitat", "type": "html"},
+  {"name": "era_immobilier", "type": "api"},
+  {"name": "human_immobilier", "type": "html"}
+]</code></pre>
+
+    <!-- ── Tiers ─────────────────────────────────── -->
+    <h2 id="tiers">Systeme de tiers</h2>
+    <p>Les sources sont organisées en 4 niveaux. Votre plan détermine les tiers accessibles.</p>
+
+    <table class="params-table">
+      <thead><tr><th>Tier</th><th>Sources</th><th>Accès</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-tier">Tier 1</span></td><td>LeBonCoin, SeLoger, BienIci, Zefir</td><td>Usage personnel uniquement — jamais via API</td></tr>
+        <tr><td><span class="badge badge-tier">Tier 2</span></td><td>PAP, entreparticuliers, open data</td><td>Tous les plans</td></tr>
+        <tr><td><span class="badge badge-tier">Tier 3</span></td><td>Century21, IAD, Guy Hoquet, ERA, Square Habitat, Human Immobilier</td><td>Plan Standard+</td></tr>
+        <tr><td><span class="badge badge-tier">Tier 4</span></td><td>Agences indépendantes/régionales</td><td>Plan Premium</td></tr>
+      </tbody>
+    </table>
+
+    <p>Utilisez le paramètre <code>tier</code> pour filtrer : <code>?tier=2&tier=3</code> retourne uniquement les annonces de ces tiers.</p>
+
+    <!-- ── Examples ───────────────────────────────── -->
+    <h2 id="examples">Exemples de code</h2>
+
+    <h3>cURL</h3>
+    <pre><code>curl -s \
+  -H "X-API-Token: VOTRE_TOKEN" \
+  "https://api.example.com/api/ads?zipcode=37&property_type=appartement&price_max=120000&per_page=10" \
+  | python3 -m json.tool</code><button class="copy-btn" onclick="copyCode(this)">Copier</button></pre>
+
+    <h3>Python</h3>
+    <pre><code>import requests
+
+API_URL = "https://api.example.com"
+TOKEN = "VOTRE_TOKEN"
+
+response = requests.get(
+    f"{API_URL}/api/ads",
+    headers={"X-API-Token": TOKEN},
+    params={
+        "zipcode": "37",
+        "property_type": "appartement",
+        "price_max": 120000,
+        "surface_min": 30,
+        "per_page": 20,
+    },
+)
+
+data = response.json()
+print(f"{data['total']} annonces trouvees")
+
+for ad in data["items"]:
+    print(f"  {ad['title']} — {ad['price']}€ — {', '.join(ad['source_names'])}")</code><button class="copy-btn" onclick="copyCode(this)">Copier</button></pre>
+
+    <h3>JavaScript (fetch)</h3>
+    <pre><code>const API_URL = "https://api.example.com";
+const TOKEN = "VOTRE_TOKEN";
+
+const params = new URLSearchParams({
+  zipcode: "37",
+  property_type: "appartement",
+  price_max: "120000",
+  per_page: "20",
+});
+
+const res = await fetch(`${API_URL}/api/ads?${params}`, {
+  headers: { "X-API-Token": TOKEN },
+});
+
+const data = await res.json();
+console.log(`${data.total} annonces`);
+data.items.forEach(ad =>
+  console.log(`${ad.title} — ${ad.price}€`)
+);</code><button class="copy-btn" onclick="copyCode(this)">Copier</button></pre>
+
+    <!-- ── Pagination ─────────────────────────────── -->
+    <h2 id="pagination">Pagination</h2>
+    <p>Toutes les listes sont paginées. La réponse contient :</p>
+    <ul>
+      <li><code>total</code> — nombre total de résultats</li>
+      <li><code>page</code> — page courante</li>
+      <li><code>per_page</code> — résultats par page</li>
+    </ul>
+    <p>Pour parcourir les résultats :</p>
+    <pre><code># Page 1
+GET /api/ads?page=1&per_page=50
+
+# Page 2
+GET /api/ads?page=2&per_page=50
+
+# Dernière page
+total_pages = ceil(total / per_page)</code></pre>
+
+    <div class="alert alert-warn">
+      <strong>Maximum 200 résultats par page.</strong> Au-delà, utilisez la pagination pour parcourir les résultats.
+    </div>
+
+  </main>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.parentElement;
+  const code = pre.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(() => {
+    btn.textContent = 'Copie !';
+    setTimeout(() => btn.textContent = 'Copier', 1500);
+  });
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('h2[id]');
+const navLinks = document.querySelectorAll('.doc-nav a[href^="#"]');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(section => {
+    if (window.scrollY >= section.offsetTop - 80) current = section.id;
+  });
+  navLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>

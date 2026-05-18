@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Monitoring & Logs</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <link rel="stylesheet" href="../assets/monitoring.css">
+</head>
+<body>
+
+<header class="mon-topbar">
+  <div class="mon-topbar-left">
+    <span class="mon-logo">S</span>
+    <div class="mon-topbar-sep"></div>
+    <nav class="mon-nav">
+      <a href="../index.html" class="mon-nav-link">Hub</a>
+      <a href="#" class="mon-nav-link active" data-tab="monitoring">Monitoring & Logs</a>
+      <a href="#" class="mon-nav-link" data-tab="raw">Annonces brutes</a>
+    </nav>
+  </div>
+  <div class="mon-topbar-right">
+    <div class="mon-health" id="healthPill">
+      <span class="mon-health-dot"></span>
+      <span id="healthText">…</span>
+    </div>
+    <input type="text" id="apiUrl" class="mon-token-input" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="mon-token-input" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" class="mon-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<!-- MONITORING TAB -->
+<main id="tabMonitoring" class="mon-main">
+  <header class="mon-page-header">
+    <div>
+      <div class="mon-overline">Pipeline · ops</div>
+      <h1 class="mon-title">Monitoring & Logs</h1>
+      <p class="mon-subtitle">Santé des scrapers, jobs en cours, erreurs et événements pipeline en temps réel.</p>
+    </div>
+    <div class="mon-header-actions">
+      <div class="mon-time-selector" id="timeSelector">
+        <button class="mon-time-btn" data-t="1h">1h</button>
+        <button class="mon-time-btn active" data-t="24h">24h</button>
+        <button class="mon-time-btn" data-t="7j">7j</button>
+        <button class="mon-time-btn" data-t="30j">30j</button>
+      </div>
+      <button id="refreshBtn" class="mon-btn mon-btn-primary">Refresh</button>
+    </div>
+  </header>
+
+  <!-- KPI strip -->
+  <section class="mon-kpi-grid" id="kpiGrid"></section>
+
+  <!-- Two columns: live jobs + logs -->
+  <section class="mon-two-col">
+    <div class="mon-panel mon-panel-light" id="jobsPanel">
+      <div class="mon-panel-header">
+        <h2 class="mon-panel-title">Jobs en cours</h2>
+        <span class="mon-panel-meta" id="jobsMeta">…</span>
+      </div>
+      <div id="jobsList"></div>
+    </div>
+    <div class="mon-panel mon-panel-dark" id="logsPanel">
+      <div class="mon-panel-header-dark">
+        <h2 class="mon-panel-title-dark">Logs en direct</h2>
+        <div class="mon-log-filters" id="logFilters">
+          <button class="mon-log-btn active" data-lvl="all">tous</button>
+          <button class="mon-log-btn" data-lvl="error">err</button>
+          <button class="mon-log-btn" data-lvl="warn">warn</button>
+          <button class="mon-log-btn" data-lvl="info">info</button>
+        </div>
+      </div>
+      <div class="mon-log-stream" id="logStream"></div>
+    </div>
+  </section>
+
+  <!-- Source health table -->
+  <section class="mon-panel mon-panel-light" id="sourceHealthPanel">
+    <div class="mon-panel-header">
+      <h2 class="mon-panel-title">Santé par source</h2>
+    </div>
+    <div class="mon-health-table-header">
+      <span>Source</span><span>Tier</span><span>Statut config</span><span>Méthode</span><span>Dernier run</span><span>État</span>
+    </div>
+    <div id="sourceHealthRows"></div>
+  </section>
+</main>
+
+<!-- RAW ADS TAB (placeholder) -->
+<main id="tabRaw" class="mon-main" hidden>
+  <header class="mon-page-header">
+    <div>
+      <div class="mon-overline">Pipeline · raw_ads</div>
+      <h1 class="mon-title">Catalogue annonces brutes</h1>
+      <p class="mon-subtitle">Vue debug des annonces avant déduplication. Nécessite un endpoint dédié (V2).</p>
+    </div>
+  </header>
+  <div class="mon-empty">Cette section sera disponible quand l'API exposera les annonces brutes (raw_ads). En attendant, utilisez l'explorateur annonces du Hub.</div>
+</main>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/monitoring.js"></script>
+</body>
+</html>

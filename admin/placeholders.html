@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Registre Placeholders URL</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <a href="../index.html" class="back-link">&larr; Hub</a>
+    <h1>Registre des placeholders URL</h1>
+  </div>
+  <div class="topbar-config">
+    <input type="text" id="apiUrl" placeholder="http://localhost:8000" autocomplete="off">
+    <input type="password" id="adminToken" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" type="button">Sauver</button>
+    <span class="health-dot pending" id="healthDot" title="Santé API"></span>
+  </div>
+</header>
+
+<section class="sv-toolbar">
+  <div class="sv-toolbar-left">
+    <button id="addBtn" type="button" class="btn btn-primary">+ Nouveau placeholder</button>
+    <button id="reloadBtn" type="button" class="btn btn-secondary">Recharger</button>
+  </div>
+  <div class="sv-toolbar-right">
+    <div class="sv-legend">
+      <span class="badge badge-type-direct">direct</span>
+      <span class="badge badge-type-mapping">mapping</span>
+      <span class="badge badge-type-formula">formula</span>
+    </div>
+  </div>
+</section>
+
+<main>
+  <!-- Placeholders table -->
+  <div id="resultsContainer"><div class="loading">Chargement…</div></div>
+
+  <!-- Test / resolve -->
+  <section class="ph-resolve" id="resolveSection">
+    <h2>Tester la résolution</h2>
+    <div class="resolve-bar">
+      <input type="text" id="resolveDept" placeholder="Code département (ex: 37)" maxlength="3">
+      <input type="text" id="resolvePattern" placeholder="URL pattern complet (optionnel) — ex: https://...{department_slug|dash}...page={page}" class="resolve-pattern-input">
+      <button id="resolveBtn" type="button" class="btn btn-primary">Résoudre</button>
+    </div>
+    <div id="resolveModifiers" class="resolve-modifiers"></div>
+    <pre id="resolveResult" class="resolve-output" hidden></pre>
+  </section>
+</main>
+
+<!-- Modale create/edit placeholder -->
+<div class="modal-overlay" id="editModal" hidden>
+  <div class="modal modal-wide">
+    <h3 id="editTitle">Nouveau placeholder</h3>
+    <label for="editName">Nom (clé utilisée dans les URL patterns) :</label>
+    <input type="text" id="editName" class="modal-input" placeholder="ex: department_slug">
+    <label for="editType">Type :</label>
+    <select id="editType" class="modal-input">
+      <option value="direct">direct — valeur passée telle quelle</option>
+      <option value="mapping">mapping — table de correspondance</option>
+      <option value="formula">formula — expression calculée</option>
+    </select>
+    <label for="editDesc">Description :</label>
+    <input type="text" id="editDesc" class="modal-input" placeholder="ex: Slug du département pour les URL PAP">
+    <div id="formulaGroup">
+      <label for="editFormula">Formule Python :</label>
+      <input type="text" id="editFormula" class="modal-input" placeholder='ex: int(department) + 364'>
+      <p class="modal-hint">Variables disponibles : <code>department</code> (str), <code>int</code>, <code>str</code></p>
+    </div>
+    <div class="edit-row">
+      <div>
+        <label for="editExInput">Exemple input :</label>
+        <input type="text" id="editExInput" class="modal-input" placeholder="37">
+      </div>
+      <div>
+        <label for="editExOutput">Exemple output :</label>
+        <input type="text" id="editExOutput" class="modal-input" placeholder="indre-et-loire">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button id="editCancel" type="button" class="btn btn-secondary">Annuler</button>
+      <button id="editSave" type="button" class="btn btn-primary">Sauver</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modale mapping editor -->
+<div class="modal-overlay" id="mappingModal" hidden>
+  <div class="modal modal-wide">
+    <h3>Mapping de <code id="mappingName"></code></h3>
+    <p class="modal-hint">Paires département → valeur. Une par ligne au format <code>clé=valeur</code>.</p>
+    <textarea id="mappingEntries" rows="12" placeholder="37=indre-et-loire&#10;75=paris&#10;69=rhone"></textarea>
+    <div id="mappingCurrent"></div>
+    <div class="modal-actions">
+      <button id="mappingCancel" type="button" class="btn btn-secondary">Annuler</button>
+      <button id="mappingSave" type="button" class="btn btn-primary">Ajouter / Mettre à jour</button>
+    </div>
+  </div>
+</div>
+
+<footer class="stats-footer">
+  <span id="statsTotal">Placeholders : –</span>
+  <span id="statsBuiltin">Builtins : –</span>
+  <span id="statsMapping">Mappings : –</span>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/placeholders.js"></script>
+</body>
+</html>

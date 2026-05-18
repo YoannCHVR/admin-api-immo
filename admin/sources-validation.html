@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Validation Sources</title>
+  <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <a href="../index.html" class="back-link">&larr; Hub</a>
+    <h1>Validation des sources scraping</h1>
+  </div>
+  <div class="topbar-config">
+    <input type="text" id="apiUrl" placeholder="http://localhost:8000" autocomplete="off">
+    <input type="password" id="adminToken" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" type="button">Sauver</button>
+    <span class="health-dot pending" id="healthDot" title="Santé API"></span>
+  </div>
+</header>
+
+<section class="sv-toolbar">
+  <div class="sv-toolbar-left">
+    <button id="autoGenBtn" type="button" class="btn btn-primary">Auto-générer les configs</button>
+    <button id="reloadBtn" type="button" class="btn btn-secondary">Recharger</button>
+  </div>
+  <div class="sv-toolbar-right">
+    <div class="sv-legend">
+      <span class="badge badge-no_config">no_config</span>
+      <span class="badge badge-pending_review">pending_review</span>
+      <span class="badge badge-validated">validated</span>
+      <span class="badge badge-rejected">rejected</span>
+    </div>
+  </div>
+</section>
+
+<main id="resultsContainer">
+  <div class="loading">Chargement…</div>
+</main>
+
+<!-- Modale reject reason -->
+<div class="modal-overlay" id="rejectModal" hidden>
+  <div class="modal">
+    <h3>Rejeter la source <code id="rejectSourceName"></code></h3>
+    <label for="rejectReason">Raison (optionnelle) :</label>
+    <textarea id="rejectReason" rows="3" placeholder="ex: URL pattern invalide, source non accessible…"></textarea>
+    <div class="modal-actions">
+      <button id="rejectCancel" type="button" class="btn btn-secondary">Annuler</button>
+      <button id="rejectConfirm" type="button" class="btn btn-danger">Rejeter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modale edit URL -->
+<div class="modal-overlay" id="editModal" hidden>
+  <div class="modal modal-wide">
+    <h3>Modifier la config de <code id="editSourceName"></code></h3>
+    <label for="editUrlPattern">URL Pattern :</label>
+    <div class="pattern-input-row">
+      <input type="text" id="editUrlPattern" class="modal-input" placeholder="https://...{department_slug|dash|lower}...page={page}">
+      <button id="editTestBtn" type="button" class="btn btn-sm btn-secondary" title="Tester ce pattern">Tester</button>
+    </div>
+    <div id="editPatternPreview" class="pattern-preview" hidden></div>
+    <div class="ph-tags-bar" id="editPlaceholderTags">
+      <span class="modal-hint">Placeholders : chargement…</span>
+    </div>
+    <div class="ph-tags-bar" id="editModifierTags">
+      <span class="modal-hint">Modifiers : chargement…</span>
+    </div>
+    <label for="editAdminUrl">Lien exemple admin (URL de référence) :</label>
+    <div class="edit-admin-url-row">
+      <input type="text" id="editAdminUrl" class="modal-input" placeholder="https://www.source.com/achat/indre-et-loire?page=1">
+      <button id="editAdminUrlSave" type="button" class="btn btn-sm btn-secondary" title="Soumettre ce lien sans modifier le pattern">Soumettre</button>
+    </div>
+    <p class="modal-hint">URL concrète servant de référence pour vérifier le pattern. Soumise séparément via PATCH admin-url.</p>
+    <label for="editNotes">Notes :</label>
+    <textarea id="editNotes" rows="2" placeholder="Notes admin…"></textarea>
+    <div class="modal-actions">
+      <button id="editCancel" type="button" class="btn btn-secondary">Annuler</button>
+      <button id="editSave" type="button" class="btn btn-primary">Sauver pattern + notes (repasse en pending_review)</button>
+    </div>
+  </div>
+</div>
+
+<footer class="stats-footer">
+  <span id="statsTotal">Sources : –</span>
+  <span id="statsValidated">Validated : –</span>
+  <span id="statsPending">Pending : –</span>
+  <span id="statsNoConfig">No config : –</span>
+  <span id="statsRejected">Rejected : –</span>
+</footer>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/sources-validation.js"></script>
+</body>
+</html>

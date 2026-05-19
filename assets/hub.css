@@ -47,6 +47,18 @@ body {
 .hub-health-dot.ok { background: var(--success); box-shadow: 0 0 6px var(--success); }
 .hub-health-dot.ko { background: var(--danger); box-shadow: 0 0 6px var(--danger); }
 .hub-health-dot.pending { background: var(--warning); }
+.hub-env-select {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+  color: var(--paper-0); padding: 5px 10px; border-radius: 8px;
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  cursor: pointer; outline: none; letter-spacing: 0.04em;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.5)'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center;
+  padding-right: 24px;
+}
+.hub-env-select:hover { border-color: rgba(255,255,255,0.3); }
+.hub-env-select option { background: var(--obsidian); color: var(--paper-0); }
 .hub-input {
   background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
   color: var(--paper-0); padding: 6px 12px; border-radius: 8px;

@@ -1,6 +1,42 @@
-// Gestionnaire Real Estate — helpers communs (config, fetch admin, toast)
+// Gestionnaire Real Estate — helpers communs (config, env, fetch admin, toast)
 
 const STORAGE_KEY = 'gre_config';
+
+// ── Environment presets ──
+
+const ENV_PRESETS = {
+  dev: {
+    label: 'DEV',
+    apiUrl: 'http://localhost:8000',
+    outilUrl: 'http://localhost:3005',
+  },
+  prod: {
+    label: 'PROD',
+    apiUrl: 'https://api.apimmo.fr',
+    outilUrl: 'https://app.apimmo.fr',
+  },
+};
+
+function getEnv() {
+  return loadConfig().env || 'dev';
+}
+
+function setEnv(env) {
+  const preset = ENV_PRESETS[env];
+  if (!preset) return;
+  const cfg = loadConfig();
+  cfg.env = env;
+  cfg.apiUrl = preset.apiUrl;
+  cfg.outilUrl = preset.outilUrl;
+  // Keep adminToken across env switches
+  saveConfig(cfg);
+}
+
+function getEnvPresets() {
+  return ENV_PRESETS;
+}
+
+// ── Config ──
 
 function loadConfig() {
   try {
@@ -15,13 +51,16 @@ function saveConfig(cfg) {
 }
 
 function getApiUrl() {
-  const url = (loadConfig().apiUrl || 'http://localhost:8000').trim();
+  const cfg = loadConfig();
+  const url = (cfg.apiUrl || ENV_PRESETS[cfg.env || 'dev'].apiUrl).trim();
   return url.replace(/\/+$/, '');
 }
 
 function getAdminToken() {
   return (loadConfig().adminToken || '').trim();
 }
+
+// ── Fetch ──
 
 async function fetchAdmin(path, opts = {}) {
   const token = getAdminToken();
@@ -42,6 +81,8 @@ async function fetchAdmin(path, opts = {}) {
   return res.json();
 }
 
+// ── Toast ──
+
 function toast(msg, type = 'info') {
   let container = document.getElementById('toast-container');
   if (!container) {
@@ -59,6 +100,8 @@ function toast(msg, type = 'info') {
     setTimeout(() => el.remove(), 300);
   }, 4000);
 }
+
+// ── Utils ──
 
 function debounce(fn, ms) {
   let t;

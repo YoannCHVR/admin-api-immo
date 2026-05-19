@@ -8,12 +8,30 @@
 
   function initConfig() {
     const cfg = loadConfig();
-    $('apiUrl').value = cfg.apiUrl || 'http://localhost:8000';
-    $('adminToken').value = cfg.adminToken || '';
-    $('outilUrl').value = cfg.outilUrl || 'http://localhost:3005';
+    const env = cfg.env || 'dev';
+    const preset = getEnvPresets()[env] || getEnvPresets().dev;
 
+    $('envSelector').value = env;
+    $('apiUrl').value = cfg.apiUrl || preset.apiUrl;
+    $('adminToken').value = cfg.adminToken || '';
+    $('outilUrl').value = cfg.outilUrl || preset.outilUrl;
+
+    // Env switch — applies preset URLs, keeps token
+    $('envSelector').addEventListener('change', () => {
+      const newEnv = $('envSelector').value;
+      setEnv(newEnv);
+      const p = getEnvPresets()[newEnv];
+      $('apiUrl').value = p.apiUrl;
+      $('outilUrl').value = p.outilUrl;
+      toast(`Environnement → ${p.label}`, 'success');
+      refreshAll();
+    });
+
+    // Manual save (overrides preset values if edited)
     $('saveConfig').addEventListener('click', () => {
+      const current = loadConfig();
       saveConfig({
+        ...current,
         apiUrl: $('apiUrl').value.trim(),
         adminToken: $('adminToken').value.trim(),
         outilUrl: $('outilUrl').value.trim(),

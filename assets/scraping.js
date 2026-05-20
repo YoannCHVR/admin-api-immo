@@ -157,6 +157,7 @@
       const customSec = src.scraping_interval_seconds;
       const customMin = secToMin(customSec);
       const lastScraped = (schedulerInfo.last_scraped || {})[src.name];
+      const adsTotal = src.ads_in_db || 0;
 
       // Cascade label
       let cascade = 'global';
@@ -166,10 +167,10 @@
       // If source has segments, show one row per dept; otherwise one row for the source
       if (srcSegs.length > 0) {
         for (const seg of srcSegs) {
-          rows.push({ src, tier, configStatus, seg, effectiveMin, cascade, customMin, lastScraped });
+          rows.push({ src, tier, configStatus, seg, effectiveMin, cascade, customMin, lastScraped, adsTotal });
         }
       } else {
-        rows.push({ src, tier, configStatus, seg: null, effectiveMin, cascade, customMin, lastScraped });
+        rows.push({ src, tier, configStatus, seg: null, effectiveMin, cascade, customMin, lastScraped, adsTotal });
       }
     }
 
@@ -251,7 +252,7 @@
           <span>${initBadge} <span class="sc-grid-dept">${escapeHtml(dept)}</span></span>
           <span>${cascadeTag}</span>
           <span class="sc-grid-time">${lastRun}</span>
-          <span class="sc-grid-ads">${adsFound}</span>
+          <span class="sc-grid-ads">${adsFound}<span class="sc-grid-ads-total" title="Total cumulé pour ${escapeHtml(name)}"> / ${r.adsTotal}</span></span>
           <span class="sc-grid-actions">${actions}</span>
         </div>`;
     }).join('');

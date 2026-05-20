@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Scraping</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <link rel="stylesheet" href="../assets/scraping.css">
+</head>
+<body>
+
+<header class="sc-topbar">
+  <div class="sc-topbar-left">
+    <span class="sc-logo">S</span>
+    <div class="sc-topbar-sep"></div>
+    <nav class="sc-nav">
+      <a href="../index.html" class="sc-nav-link">Hub</a>
+      <a href="#" class="sc-nav-link active">Scraping</a>
+    </nav>
+  </div>
+  <div class="sc-topbar-right">
+    <div class="sc-health" id="healthPill"><span class="sc-health-dot" id="healthDot"></span><span id="healthText">…</span></div>
+    <input type="text" id="apiUrl" class="sc-input-dark" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="sc-input-dark" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" class="sc-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<main class="sc-main">
+
+  <!-- ── Section 1 — Scheduler global ── -->
+  <section class="sc-scheduler-bar" id="schedulerBar">
+    <div class="sc-sched-left">
+      <span class="sc-sched-badge" id="schedBadge">…</span>
+      <span class="sc-sched-meta" id="schedMeta"></span>
+    </div>
+    <div class="sc-sched-actions">
+      <button class="sc-btn sc-btn-ok" id="schedStartBtn">Start</button>
+      <button class="sc-btn sc-btn-danger" id="schedStopBtn">Stop</button>
+      <button class="sc-btn" id="schedRunBtn">Run all</button>
+      <button class="sc-btn" id="schedRefreshBtn">↻</button>
+    </div>
+  </section>
+
+  <!-- ── Section 2 — Tier defaults (collapsible) ── -->
+  <details class="sc-tier-section" id="tierSection">
+    <summary class="sc-tier-summary">Tier Defaults <span class="sc-tier-hint" id="tierHint"></span></summary>
+    <div class="sc-tier-cards" id="tierCards"></div>
+  </details>
+
+  <!-- ── Section 3 — Main grid ── -->
+  <section class="sc-grid-section">
+    <div class="sc-grid-toolbar">
+      <div class="sc-grid-filters">
+        <select id="fSource" class="sc-filter-input"><option value="">Source</option></select>
+        <select id="fTier" class="sc-filter-input">
+          <option value="">Tier</option><option value="1">T1</option><option value="2">T2</option><option value="3">T3</option><option value="4">T4</option>
+        </select>
+        <select id="fConfig" class="sc-filter-input">
+          <option value="">Config</option><option value="validated">Validated</option><option value="pending_review">Pending</option><option value="rejected">Rejected</option><option value="no_config">No config</option>
+        </select>
+        <input type="text" id="fDept" class="sc-filter-input sc-filter-sm" placeholder="Dept" maxlength="3">
+        <button class="sc-btn" id="autoGenBtn">Auto-generate configs</button>
+      </div>
+      <div class="sc-grid-meta">
+        <label class="sc-auto-poll"><input type="checkbox" id="autoPoll" checked> Auto 5s</label>
+      </div>
+    </div>
+
+    <div id="gridContainer"><div class="sc-empty">Chargement…</div></div>
+  </section>
+
+</main>
+
+<!-- ── Modals ── -->
+
+<!-- Bootstrap modal -->
+<div class="sc-overlay" id="bootstrapModal" hidden>
+  <div class="sc-modal">
+    <h3>Bootstrap <code id="bootstrapSource"></code></h3>
+    <div class="sc-modal-field">
+      <label class="sc-label">Département</label>
+      <input type="text" id="bootstrapDept" class="sc-modal-input" placeholder="ex: 37" maxlength="3">
+    </div>
+    <div class="sc-modal-field">
+      <label class="sc-label">Types de biens</label>
+      <select id="bootstrapPt" class="sc-modal-input">
+        <option value="appartement">Appartement</option>
+        <option value="appartement,maison">Appartement + Maison</option>
+        <option value="all">Tous</option>
+      </select>
+    </div>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="bootstrapCancel">Annuler</button>
+      <button class="sc-btn sc-btn-ok" id="bootstrapConfirm">Lancer SCRAP INIT</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit interval modal -->
+<div class="sc-overlay" id="intervalModal" hidden>
+  <div class="sc-modal">
+    <h3>Intervalle de <code id="intervalSource"></code></h3>
+    <div class="sc-modal-field">
+      <label class="sc-label">Intervalle personnalisé (minutes, vide = défaut tier)</label>
+      <input type="number" id="intervalInput" class="sc-modal-input" placeholder="ex: 30" min="1" max="1440">
+    </div>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="intervalCancel">Annuler</button>
+      <button class="sc-btn sc-btn-ok" id="intervalSave">Sauver</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit config modal -->
+<div class="sc-overlay" id="configModal" hidden>
+  <div class="sc-modal sc-modal-wide">
+    <h3>Config de <code id="configSource"></code></h3>
+    <div class="sc-modal-field">
+      <label class="sc-label">URL Pattern</label>
+      <input type="text" id="configPattern" class="sc-modal-input sc-mono" placeholder="https://...{department}...page={page}">
+    </div>
+    <div class="sc-modal-field">
+      <label class="sc-label">Admin URL (référence)</label>
+      <input type="text" id="configAdminUrl" class="sc-modal-input sc-mono" placeholder="https://www.source.com/achat/indre-et-loire?page=1">
+    </div>
+    <div class="sc-modal-field">
+      <label class="sc-label">Notes</label>
+      <textarea id="configNotes" class="sc-modal-input" rows="2" placeholder="Notes admin…"></textarea>
+    </div>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="configCancel">Annuler</button>
+      <button class="sc-btn sc-btn-ok" id="configSave">Sauver (→ pending_review)</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject modal -->
+<div class="sc-overlay" id="rejectModal" hidden>
+  <div class="sc-modal">
+    <h3>Rejeter <code id="rejectSource"></code></h3>
+    <div class="sc-modal-field">
+      <label class="sc-label">Raison (optionnelle)</label>
+      <textarea id="rejectReason" class="sc-modal-input" rows="2" placeholder="ex: URL invalide, site down…"></textarea>
+    </div>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="rejectCancel">Annuler</button>
+      <button class="sc-btn sc-btn-danger" id="rejectConfirm">Rejeter</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reset confirm modal -->
+<div class="sc-overlay" id="resetModal" hidden>
+  <div class="sc-modal">
+    <h3>Reset <code id="resetSource"></code></h3>
+    <p class="sc-modal-warn">Supprime toutes les annonces (ad_sources + canonical_ads orphelins) et les segments init de cette source. La config est préservée. <strong>Irréversible.</strong></p>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="resetCancel">Annuler</button>
+      <button class="sc-btn sc-btn-danger" id="resetConfirm">Confirmer le reset</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/scraping.js"></script>
+</body>
+</html>

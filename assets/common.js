@@ -12,8 +12,8 @@ const ENV_PRESETS = {
   },
   prod: {
     label: 'PROD',
-    apiUrl: 'https://api.apimmo.fr',
-    outilUrl: 'https://app.apimmo.fr',
+    apiUrl: 'https://api-immo.tech',
+    outilUrl: 'https://app.api-immo.tech',
   },
 };
 

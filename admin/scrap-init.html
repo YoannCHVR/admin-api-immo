@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — SCRAP INIT</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <link rel="stylesheet" href="../assets/monitoring.css">
+</head>
+<body>
+
+<header class="mon-topbar">
+  <div class="mon-topbar-left">
+    <span class="mon-logo">S</span>
+    <div class="mon-topbar-sep"></div>
+    <nav class="mon-nav">
+      <a href="../index.html" class="mon-nav-link">Hub</a>
+      <a href="#" class="mon-nav-link active">SCRAP INIT</a>
+    </nav>
+  </div>
+  <div class="mon-topbar-right">
+    <div class="mon-health" id="healthPill">
+      <span class="mon-health-dot" id="healthDot"></span>
+      <span id="healthText">…</span>
+    </div>
+    <input type="text" id="apiUrl" class="mon-token-input" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="mon-token-input" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" class="mon-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<main class="mon-main">
+  <header class="mon-page-header">
+    <div>
+      <div class="mon-overline">Pipeline · init</div>
+      <h1 class="mon-title">SCRAP INIT</h1>
+      <p class="mon-subtitle">Lancer le scraping initial par département. Seules les sources validées sont éligibles.</p>
+    </div>
+  </header>
+
+  <!-- Launch form -->
+  <section class="si-launch-card">
+    <h2 class="si-section-title">Lancer un SCRAP INIT</h2>
+    <div class="si-form">
+      <div class="si-field">
+        <label class="si-label">Département</label>
+        <input type="text" id="initDept" class="si-input" placeholder="ex: 37" maxlength="3">
+      </div>
+      <div class="si-field">
+        <label class="si-label">Sources (vide = toutes validées)</label>
+        <div id="sourcesCheckboxes" class="si-checkboxes">Chargement…</div>
+      </div>
+      <div class="si-field">
+        <label class="si-label">Types de biens</label>
+        <select id="initPropertyTypes" class="si-input">
+          <option value="appartement">Appartement</option>
+          <option value="appartement,maison">Appartement + Maison</option>
+          <option value="all">Tous types</option>
+        </select>
+      </div>
+      <button id="launchBtn" class="mon-btn mon-btn-primary si-launch-btn" type="button">Lancer SCRAP INIT</button>
+    </div>
+    <div id="launchResult" class="si-launch-result" hidden></div>
+  </section>
+
+  <!-- Progress -->
+  <section class="si-progress-section" id="progressSection">
+    <div class="si-progress-header">
+      <h2 class="si-section-title">Suivi des segments</h2>
+      <div class="si-progress-controls">
+        <label class="si-label" style="margin:0">Département :</label>
+        <input type="text" id="statusDept" class="si-input si-input-sm" placeholder="tous" maxlength="3">
+        <button id="refreshStatusBtn" class="mon-btn" type="button">Rafraîchir</button>
+        <label class="si-auto-label"><input type="checkbox" id="autoRefresh" checked> Auto 5s</label>
+      </div>
+    </div>
+
+    <!-- KPI strip -->
+    <div class="si-kpi-strip" id="kpiStrip"></div>
+
+    <!-- Global progress bar -->
+    <div class="si-global-bar" id="globalBar" hidden>
+      <div class="si-bar-track">
+        <div class="si-bar-fill" id="barFill"></div>
+      </div>
+      <span class="si-bar-label" id="barLabel"></span>
+    </div>
+
+    <!-- Segments table -->
+    <div id="segmentsContainer"><div class="mon-empty">Aucun segment chargé.</div></div>
+  </section>
+</main>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/scrap-init.js"></script>
+</body>
+</html>

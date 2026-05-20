@@ -263,3 +263,122 @@ body {
 .toast-success { border-left-color: var(--success); }
 .toast-error { border-left-color: var(--danger); }
 .toast-warn { border-left-color: var(--warning); }
+
+/* ========== SCRAP INIT page ========== */
+
+.si-launch-card {
+  background: var(--paper-0); border-radius: 14px; border: 1px solid var(--line-1);
+  padding: 20px 24px; margin-bottom: 24px;
+}
+.si-section-title {
+  font-family: var(--font-display); font-weight: 600; font-size: 15px;
+  letter-spacing: -0.015em; margin: 0 0 16px;
+}
+.si-form {
+  display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end;
+}
+.si-field { display: flex; flex-direction: column; gap: 4px; }
+.si-label {
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600;
+}
+.si-input {
+  padding: 9px 12px; border: 1px solid var(--line-2); border-radius: 10px;
+  font-size: 14px; font-family: var(--font-sans); background: var(--paper-0);
+  outline: none; min-width: 100px;
+}
+.si-input:focus { border-color: var(--accent-700); box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent-700) 15%, transparent); }
+.si-input-sm { width: 80px; padding: 7px 10px; font-size: 13px; }
+.si-checkboxes {
+  display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 0; max-width: 600px;
+}
+.si-check-label {
+  font-size: 12px; color: var(--ink-2); display: flex; align-items: center; gap: 4px; cursor: pointer;
+}
+.si-launch-btn { padding: 9px 20px; font-size: 14px; align-self: flex-end; }
+
+.si-launch-result { margin-top: 14px; }
+.si-result-ok {
+  padding: 14px 18px; border-radius: 10px; font-size: 13px; line-height: 1.6;
+  background: color-mix(in oklch, var(--success) 10%, transparent); color: var(--ink-1);
+}
+.si-result-err {
+  padding: 14px 18px; border-radius: 10px; font-size: 13px;
+  background: color-mix(in oklch, var(--danger) 10%, transparent); color: #7a1f1f;
+}
+
+/* Progress section */
+.si-progress-section { margin-top: 8px; }
+.si-progress-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px; gap: 14px; flex-wrap: wrap;
+}
+.si-progress-controls {
+  display: flex; align-items: center; gap: 8px;
+}
+.si-auto-label {
+  font-size: 12px; color: var(--ink-3); display: flex; align-items: center; gap: 4px; cursor: pointer;
+}
+
+/* KPI strip */
+.si-kpi-strip {
+  display: flex; gap: 12px; margin-bottom: 14px;
+}
+.si-kpi {
+  background: var(--paper-0); border-radius: 10px; padding: 12px 18px;
+  border: 1px solid var(--line-1); text-align: center; min-width: 90px; flex: 1;
+}
+.si-kpi-value {
+  font-family: var(--font-display); font-weight: 600; font-size: 24px;
+  letter-spacing: -0.025em; font-variant-numeric: tabular-nums; line-height: 1;
+}
+.si-kpi-label {
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.06em; margin-top: 6px;
+}
+
+/* Global progress bar */
+.si-global-bar {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.si-bar-track {
+  flex: 1; height: 6px; background: var(--paper-2); border-radius: 3px; overflow: hidden;
+}
+.si-bar-fill {
+  height: 100%; background: var(--accent-700); border-radius: 3px;
+  transition: width 300ms var(--ease-out);
+}
+.si-bar-label {
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); white-space: nowrap;
+}
+
+/* Segments table */
+.si-seg-header {
+  display: grid; grid-template-columns: 1.5fr 70px 110px 90px 1fr;
+  padding: 8px 14px; background: var(--paper-2); border-radius: 10px 10px 0 0;
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; gap: 10px;
+}
+.si-seg-row {
+  display: grid; grid-template-columns: 1.5fr 70px 110px 90px 1fr;
+  padding: 10px 14px; border-top: 1px solid var(--line-1); gap: 10px; align-items: center;
+  background: var(--paper-0);
+}
+.si-seg-row:last-child { border-radius: 0 0 10px 10px; }
+.si-seg-source { font-size: 13px; font-weight: 500; }
+.si-seg-dept { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+.si-seg-ads { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; color: var(--ink-1); }
+.si-seg-time { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+
+/* In-progress pill (animated) */
+.si-pill-progress {
+  background: color-mix(in oklch, var(--accent-700) 14%, transparent); color: var(--accent-900);
+}
+.si-pill-progress .mon-pill-dot {
+  background: var(--accent-700);
+  animation: si-pulse 1.2s ease-in-out infinite;
+}
+@keyframes si-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}

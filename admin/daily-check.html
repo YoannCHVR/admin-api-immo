@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Vérifs quotidiennes</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <link rel="stylesheet" href="../assets/scraping.css">
+  <link rel="stylesheet" href="../assets/daily-check.css">
+</head>
+<body>
+
+<header class="sc-topbar">
+  <div class="sc-topbar-left">
+    <span class="sc-logo">S</span>
+    <div class="sc-topbar-sep"></div>
+    <nav class="sc-nav">
+      <a href="../index.html" class="sc-nav-link">Hub</a>
+      <a href="scraping.html" class="sc-nav-link">Scraping</a>
+      <a href="#" class="sc-nav-link active">Vérifs quotidiennes</a>
+    </nav>
+  </div>
+  <div class="sc-topbar-right">
+    <div class="sc-health" id="healthPill"><span class="sc-health-dot" id="healthDot"></span><span id="healthText">…</span></div>
+    <input type="text" id="apiUrl" class="sc-input-dark" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="sc-input-dark" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" class="sc-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<main class="sc-main">
+
+  <div class="dc-hero">
+    <div>
+      <h1 class="dc-title">Vérifs quotidiennes</h1>
+      <p class="dc-subtitle">Annonces scrapées par source × département sur les dernières heures. Cliquez une ligne pour voir les annonces et comparer avec le site source.</p>
+    </div>
+    <div class="dc-hero-meta" id="genMeta"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <section class="dc-toolbar">
+    <div class="dc-filters">
+      <select id="fSource" class="sc-filter-input"><option value="">Toutes sources</option></select>
+      <input type="text" id="fDept" class="sc-filter-input sc-filter-sm" placeholder="Dépt" maxlength="3">
+      <div class="dc-seg" id="kindSeg" role="tablist" aria-label="Type de mesure">
+        <button class="dc-seg-btn active" data-kind="new" title="Annonces nouvellement découvertes (first_seen)">Nouvelles</button>
+        <button class="dc-seg-btn" data-kind="seen" title="Annonces revues lors des passes récentes (last_seen)">Vues</button>
+      </div>
+      <div class="dc-seg" id="winSeg" role="tablist" aria-label="Fenêtre temporelle">
+        <button class="dc-seg-btn" data-win="3">3h</button>
+        <button class="dc-seg-btn active" data-win="24">24h</button>
+        <button class="dc-seg-btn" data-win="48">48h</button>
+      </div>
+      <label class="dc-check"><input type="checkbox" id="hideEmpty"> Masquer lignes à 0</label>
+    </div>
+    <div class="dc-toolbar-right">
+      <span class="dc-legend" id="rowCount"></span>
+      <button class="sc-btn" id="refreshBtn">↻ Rafraîchir</button>
+    </div>
+  </section>
+
+  <!-- Summary grid -->
+  <section class="dc-grid-section">
+    <div class="dc-grid-header">
+      <span>Source</span>
+      <span>Dépt</span>
+      <span class="dc-col-group">Nouvelles · 3h / 24h / 48h</span>
+      <span class="dc-col-group">Vues · 3h / 24h / 48h</span>
+      <span>Total</span>
+      <span>Dernière activité</span>
+      <span></span>
+    </div>
+    <div id="gridContainer"><div class="sc-empty">Configure le token admin puis rafraîchis.</div></div>
+  </section>
+
+</main>
+
+<!-- Slide-over: ad detail list -->
+<div class="dc-drawer-overlay" id="drawerOverlay" hidden></div>
+<aside class="dc-drawer" id="drawer" hidden aria-hidden="true">
+  <div class="dc-drawer-head">
+    <div>
+      <div class="dc-drawer-title" id="drawerTitle">—</div>
+      <div class="dc-drawer-sub" id="drawerSub"></div>
+    </div>
+    <button class="sc-btn sc-btn-ghost" id="drawerClose" title="Fermer">✕</button>
+  </div>
+  <div class="dc-drawer-actions" id="drawerActions"></div>
+  <div class="dc-drawer-body" id="drawerBody"></div>
+  <div class="dc-drawer-foot" id="drawerFoot"></div>
+</aside>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/daily-check.js"></script>
+</body>
+</html>

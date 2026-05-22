@@ -157,7 +157,8 @@
       const customSec = src.scraping_interval_seconds;
       const customMin = secToMin(customSec);
       const lastScraped = (schedulerInfo.last_scraped || {})[src.name];
-      const adsTotal = src.ads_in_db || 0;
+      const adsTotalSource = src.ads_in_db || 0;
+      const adsByDept = src.ads_in_db_by_dept || {};
 
       // Cascade label
       let cascade = 'global';
@@ -167,10 +168,13 @@
       // If source has segments, show one row per dept; otherwise one row for the source
       if (srcSegs.length > 0) {
         for (const seg of srcSegs) {
+          // Total en base pour ce département précis (zipcode[:2])
+          const adsTotal = adsByDept[seg.department] ?? 0;
           rows.push({ src, tier, configStatus, seg, effectiveMin, cascade, customMin, lastScraped, adsTotal });
         }
       } else {
-        rows.push({ src, tier, configStatus, seg: null, effectiveMin, cascade, customMin, lastScraped, adsTotal });
+        // Pas de segment : on retombe sur le total source toutes-départements
+        rows.push({ src, tier, configStatus, seg: null, effectiveMin, cascade, customMin, lastScraped, adsTotal: adsTotalSource });
       }
     }
 
@@ -252,7 +256,7 @@
           <span>${initBadge} <span class="sc-grid-dept">${escapeHtml(dept)}</span></span>
           <span>${cascadeTag}</span>
           <span class="sc-grid-time">${lastRun}</span>
-          <span class="sc-grid-ads">${adsFound}<span class="sc-grid-ads-total" title="Total cumulé pour ${escapeHtml(name)}"> / ${r.adsTotal}</span></span>
+          <span class="sc-grid-ads">${adsFound}<span class="sc-grid-ads-total" title="${r.seg ? `Total en base pour ${escapeHtml(name)} · dépt ${escapeHtml(dept)}` : `Total en base pour ${escapeHtml(name)}`}"> / ${r.adsTotal}</span></span>
           <span class="sc-grid-actions">${actions}</span>
         </div>`;
     }).join('');

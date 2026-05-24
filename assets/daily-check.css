@@ -138,6 +138,78 @@
 .dc-ad-arrow { color: var(--ink-5); font-size: 14px; align-self: center; padding-right: 4px; }
 .dc-ad:hover .dc-ad-arrow { color: var(--accent-700); }
 
+/* ── Vérifier une URL ── */
+.dc-lookup {
+  background: var(--paper-0); border: 1px solid var(--line-1); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 16px;
+}
+.dc-lookup-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.dc-lookup-label {
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; flex-shrink: 0;
+}
+.dc-lookup-input {
+  flex: 1; min-width: 220px; padding: 8px 12px; border: 1px solid var(--line-2);
+  border-radius: 9px; font-size: 13px; font-family: var(--font-sans);
+  background: var(--paper-1); outline: none;
+}
+.dc-lookup-input:focus { border-color: var(--accent-700); box-shadow: 0 0 0 3px color-mix(in oklch, var(--accent-700) 15%, transparent); }
+
+.dc-lookup-result:empty { display: none; }
+.dc-lookup-result { margin-top: 12px; }
+
+.dc-lookup-card {
+  background: var(--paper-1); border: 1px solid var(--line-1); border-radius: 11px;
+  padding: 14px; animation: dc-slide 160ms var(--ease-out);
+}
+.dc-lookup-found { border-left: 3px solid var(--success); }
+.dc-lookup-notfound { border-left: 3px solid var(--ink-4); }
+.dc-lookup-errstate { border-left: 3px solid var(--danger); display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+.dc-lookup-card-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.dc-lookup-status { font-family: var(--font-display); font-weight: 700; font-size: 14px; }
+.dc-lookup-status-ok { color: #0e6b3a; }
+.dc-lookup-status-none { color: var(--ink-3); }
+.dc-lookup-status-err { color: #7a1f1f; }
+
+.dc-lookup-card-body { display: flex; gap: 14px; align-items: flex-start; }
+.dc-lookup-thumb {
+  width: 112px; height: 112px; border-radius: 9px; object-fit: cover;
+  background: var(--paper-3); flex-shrink: 0;
+}
+.dc-lookup-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.dc-lookup-price { font-family: var(--font-display); font-weight: 700; font-size: 20px; color: var(--ink-1); }
+.dc-lookup-title { font-size: 14px; color: var(--ink-1); font-weight: 500; line-height: 1.35; }
+.dc-lookup-metaline { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.dc-lookup-loc { font-size: 12px; color: var(--ink-2); }
+.dc-lookup-facts {
+  display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 8px 0 4px;
+}
+.dc-lookup-facts > div { display: flex; flex-direction: column; gap: 1px; }
+.dc-lookup-facts dt {
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.dc-lookup-facts dd { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); }
+.dc-lookup-cta { align-self: flex-start; margin-top: 6px; text-decoration: none; }
+
+.dc-lookup-tested { font-size: 12px; color: var(--ink-3); margin-top: 6px; word-break: break-all; }
+.dc-lookup-tested a { color: var(--accent-700); }
+
+.dc-lookup-others { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line-1); }
+.dc-lookup-others-title {
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+}
+.dc-lookup-other {
+  display: flex; align-items: center; gap: 8px; text-decoration: none;
+  padding: 6px 8px; border-radius: 8px; transition: background 80ms;
+}
+.dc-lookup-other:hover { background: var(--paper-2); }
+.dc-lookup-other-id { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); flex: 1; }
+
+.dc-pill-source { background: var(--accent-100); color: var(--accent-900); }
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .dc-grid-header { display: none; }
@@ -146,4 +218,7 @@
     padding: 12px 14px;
   }
   .dc-cell-actions { grid-column: 1 / -1; justify-content: flex-start; }
+  .dc-lookup-input { min-width: 0; width: 100%; }
+  .dc-lookup-card-body { flex-direction: column; }
+  .dc-lookup-thumb { width: 100%; height: 160px; }
 }

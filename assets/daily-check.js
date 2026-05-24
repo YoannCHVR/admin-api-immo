@@ -223,12 +223,136 @@
 
   function escapeAttr(s) { return escapeHtml(s).replace(/`/g, '&#96;'); }
 
+  function fmtDateTime(iso) {
+    if (!iso) return null;
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleString('fr-FR', {
+      day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit',
+    });
+  }
+
+  // ── Vérifier une URL (lookup match exact, décision 100% backend) ──
+
+  const SALE_STATUS = {
+    available:        ['Disponible',     'sc-pill-ok'],
+    under_offer:      ['Sous offre',     'sc-pill-warn'],
+    under_compromise: ['Sous compromis', 'sc-pill-warn'],
+    sold:             ['Vendu',          'sc-pill-err'],
+  };
+
+  async function runLookup() {
+    const url = $('lookupInput').value.trim();
+    if (!url) { $('lookupBtn').disabled = true; return; }
+
+    // Garde token, cohérente avec la gestion d'auth du reste de la page
+    if (!getAdminToken()) { renderLookupError('Non autorisé — token admin manquant/invalide', false); return; }
+
+    const btn = $('lookupBtn');
+    const origLabel = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Vérification…';
+    $('lookupResult').innerHTML = '<div class="sc-empty">Recherche…</div>';
+    try {
+      const data = await fetchAdmin(`/scrapers/daily-check/lookup?url=${encodeURIComponent(url)}`);
+      $('lookupResult').innerHTML = data.found ? renderLookupFound(data) : renderLookupNotFound(data.url || url);
+    } catch (e) {
+      const m = e.message || '';
+      if (m.startsWith('401') || m.startsWith('403') || /token admin manquant/i.test(m)) {
+        renderLookupError('Non autorisé — token admin manquant/invalide', false);
+      } else if (m.startsWith('422')) {
+        renderLookupError('URL vide ou invalide', false);
+      } else {
+        renderLookupError('Erreur lors de la vérification. Réessaie.', true);
+      }
+    } finally {
+      btn.textContent = origLabel;
+      btn.disabled = !$('lookupInput').value.trim();
+    }
+  }
+
+  function renderLookupFound(d) {
+    const price = d.price != null ? `${Number(d.price).toLocaleString('fr-FR')} €` : '—';
+    const surf = d.surface != null ? `${d.surface} m²` : null;
+    const rooms = d.rooms != null ? `${d.rooms} pièce${d.rooms > 1 ? 's' : ''}` : null;
+    const pt = d.property_type ? (PT_LABEL[d.property_type] || d.property_type) : null;
+    const m2 = (d.price && d.surface) ? `${Math.round(d.price / d.surface).toLocaleString('fr-FR')} €/m²` : null;
+    const meta = [pt, surf, rooms, m2].filter(Boolean).join(' · ');
+    const loc = [d.city, d.zipcode].filter(Boolean).join(' ');
+    const [ssLabel, ssClass] = SALE_STATUS[d.sale_status] || [d.sale_status || '—', 'sc-pill-none'];
+    const thumb = d.image
+      ? `<img class="dc-lookup-thumb" src="${escapeAttr(d.image)}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'dc-lookup-thumb dc-ad-thumb-empty'}))">`
+      : '<div class="dc-lookup-thumb dc-ad-thumb-empty"></div>';
+    const fs = fmtDateTime(d.first_seen_at);
+    const ls = fmtDateTime(d.last_seen_at);
+
+    const others = (d.other_sources || []).length
+      ? `<div class="dc-lookup-others">
+           <div class="dc-lookup-others-title">Autres sources du même bien (${d.other_sources.length})</div>
+           ${d.other_sources.map(s => `
+             <a class="dc-lookup-other" href="${escapeAttr(s.url)}" target="_blank" rel="noopener">
+               <span class="sc-pill dc-pill-source">${escapeHtml(s.source)}</span>
+               <span class="dc-lookup-other-id">${escapeHtml(s.external_id || '')}</span>
+               <span class="dc-ad-arrow">↗</span>
+             </a>`).join('')}
+         </div>`
+      : '';
+
+    return `
+      <div class="dc-lookup-card dc-lookup-found">
+        <div class="dc-lookup-card-head">
+          <span class="dc-lookup-status dc-lookup-status-ok">✅ Déjà scrapée</span>
+          <span class="sc-pill dc-pill-source">${escapeHtml(d.source)}</span>
+          <span class="sc-pill ${ssClass}">${escapeHtml(ssLabel)}</span>
+        </div>
+        <div class="dc-lookup-card-body">
+          ${thumb}
+          <div class="dc-lookup-info">
+            <div class="dc-lookup-price">${price}</div>
+            <div class="dc-lookup-title">${escapeHtml(d.title || '(sans titre)')}</div>
+            ${meta ? `<div class="dc-lookup-metaline">${escapeHtml(meta)}</div>` : ''}
+            ${loc ? `<div class="dc-lookup-loc">${escapeHtml(loc)}</div>` : ''}
+            <dl class="dc-lookup-facts">
+              ${fs ? `<div><dt>Première vue</dt><dd>${escapeHtml(fs)}</dd></div>` : ''}
+              ${ls ? `<div><dt>Dernière vue</dt><dd>${escapeHtml(ls)}</dd></div>` : ''}
+              ${d.external_id ? `<div><dt>ID externe</dt><dd>${escapeHtml(d.external_id)}</dd></div>` : ''}
+            </dl>
+            <a class="sc-btn sc-btn-sm sc-btn-ok dc-lookup-cta" href="${escapeAttr(d.url)}" target="_blank" rel="noopener">Voir l'annonce ↗</a>
+          </div>
+        </div>
+        ${others}
+      </div>`;
+  }
+
+  function renderLookupNotFound(url) {
+    return `
+      <div class="dc-lookup-card dc-lookup-notfound">
+        <span class="dc-lookup-status dc-lookup-status-none">❌ Jamais scrapée</span>
+        <div class="dc-lookup-tested">URL testée : <a href="${escapeAttr(url)}" target="_blank" rel="noopener">${escapeHtml(url)}</a></div>
+      </div>`;
+  }
+
+  function renderLookupError(msg, retry) {
+    $('lookupResult').innerHTML = `
+      <div class="dc-lookup-card dc-lookup-errstate">
+        <span class="dc-lookup-status dc-lookup-status-err">⚠️ ${escapeHtml(msg)}</span>
+        ${retry ? '<button class="sc-btn sc-btn-sm" id="lookupRetry" type="button">Réessayer</button>' : ''}
+      </div>`;
+    if (retry) { const b = $('lookupRetry'); if (b) b.addEventListener('click', runLookup); }
+  }
+
   // ── Wiring ──
 
   $('refreshBtn').addEventListener('click', loadSummary);
   $('fSource').addEventListener('change', renderGrid);
   $('fDept').addEventListener('input', debounce(renderGrid, 200));
   $('hideEmpty').addEventListener('change', renderGrid);
+
+  $('lookupBtn').addEventListener('click', runLookup);
+  $('lookupInput').addEventListener('input', () => { $('lookupBtn').disabled = !$('lookupInput').value.trim(); });
+  $('lookupInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !$('lookupBtn').disabled) { e.preventDefault(); runLookup(); }
+  });
 
   $('kindSeg').addEventListener('click', (e) => {
     const btn = e.target.closest('.dc-seg-btn'); if (!btn) return;

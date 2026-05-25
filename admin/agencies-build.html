@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Base d'agences</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <link rel="stylesheet" href="../assets/scraping.css">
+  <link rel="stylesheet" href="../assets/agencies-build.css">
+</head>
+<body>
+
+<header class="sc-topbar">
+  <div class="sc-topbar-left">
+    <span class="sc-logo">S</span>
+    <div class="sc-topbar-sep"></div>
+    <nav class="sc-nav">
+      <a href="../index.html" class="sc-nav-link">Hub</a>
+      <a href="agencies-table.html" class="sc-nav-link">Agences</a>
+      <a href="#" class="sc-nav-link active">Base d'agences</a>
+    </nav>
+  </div>
+  <div class="sc-topbar-right">
+    <div class="sc-health" id="healthPill"><span class="sc-health-dot" id="healthDot"></span><span id="healthText">…</span></div>
+    <input type="text" id="apiUrl" class="sc-input-dark" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="sc-input-dark" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" class="sc-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<main class="sc-main">
+
+  <div class="dc-hero ab-hero">
+    <div>
+      <h1 class="dc-title">Base d'agences — construction &amp; enrichissement</h1>
+      <p class="dc-subtitle">Lance et suis les jobs de découverte/enrichissement (CCI, SIRENE → FNAIM → SNPI, établissements + NAF). Un seul job à la fois ; suivi en direct et historique ci-dessous.</p>
+    </div>
+  </div>
+
+  <!-- Snapshot -->
+  <section class="ab-snapshot" id="snapshot"></section>
+
+  <!-- Actions -->
+  <section class="ab-actions">
+    <!-- 1. CCI -->
+    <div class="ab-card">
+      <div class="ab-card-step">1</div>
+      <div class="ab-card-body">
+        <div class="ab-card-title">Importer / MAJ agences (CCI)</div>
+        <div class="ab-card-desc">Importe ou met à jour les marques depuis le fichier CCI (carte Transaction). Non destructif.</div>
+      </div>
+      <button class="sc-btn sc-btn-ok ab-btn" data-action-btn data-job="cci">Importer CCI</button>
+    </div>
+
+    <!-- 2. Pipeline enrichissement -->
+    <div class="ab-card">
+      <div class="ab-card-step">2</div>
+      <div class="ab-card-body">
+        <div class="ab-card-title">Enrichir un département (SIRENE → FNAIM → SNPI)</div>
+        <div class="ab-card-desc">Pipeline complet d'enrichissement pour un département donné.</div>
+      </div>
+      <div class="ab-card-actions">
+        <input type="text" id="deptInput" class="sc-filter-input sc-filter-sm" placeholder="Dépt" maxlength="3">
+        <button class="sc-btn sc-btn-ok ab-btn" data-action-btn data-job="pipeline">Enrichir</button>
+      </div>
+    </div>
+
+    <!-- 3. Destructif -->
+    <div class="ab-card ab-card-danger">
+      <div class="ab-card-step ab-card-step-danger">3</div>
+      <div class="ab-card-body">
+        <div class="ab-card-title">Créer business places + NAF <span class="ab-tag-danger">DESTRUCTIF</span></div>
+        <div class="ab-card-desc">Lance <code>enrich_sirene</code> : crée les établissements et renseigne le NAF, mais <strong>supprime les marques hors <code>naf_filter</code></strong> et leurs établissements. Opération nationale, plusieurs minutes.</div>
+      </div>
+      <button class="sc-btn sc-btn-danger ab-btn" data-action-btn data-job="sirene">Lancer (SIRENE)</button>
+    </div>
+
+    <!-- 4. Avancé -->
+    <details class="ab-advanced">
+      <summary>Avancé — sources isolées</summary>
+      <div class="ab-advanced-body">
+        <button class="sc-btn ab-btn" data-action-btn data-job="fnaim">FNAIM seul</button>
+        <button class="sc-btn ab-btn" data-action-btn data-job="snpi">SNPI seul</button>
+      </div>
+    </details>
+  </section>
+
+  <!-- Live job -->
+  <section class="ab-live" id="liveJob" hidden></section>
+
+  <!-- History -->
+  <section class="ab-history-section">
+    <div class="ab-history-head">
+      <h2 class="ab-history-title">Historique des jobs</h2>
+      <button class="sc-btn sc-btn-sm" id="refreshBtn">↻ Rafraîchir</button>
+    </div>
+    <div id="jobsContainer"><div class="sc-empty">Configure le token admin puis rafraîchis.</div></div>
+  </section>
+
+</main>
+
+<!-- Modal confirmation action destructive -->
+<div class="sc-overlay" id="confirmModal" hidden>
+  <div class="sc-modal">
+    <h3>Confirmer l'action destructive</h3>
+    <p class="sc-modal-warn">
+      <code>enrich_sirene</code> va créer les établissements et renseigner le NAF, mais
+      <strong>supprimer définitivement toutes les marques dont le code NAF n'est pas dans <code>naf_filter</code></strong>,
+      ainsi que leurs établissements.<br><br>
+      C'est une opération <strong>nationale</strong> qui peut durer plusieurs minutes. Irréversible.
+    </p>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="confirmCancel">Annuler</button>
+      <button class="sc-btn sc-btn-danger" id="confirmRun">Oui, lancer enrich_sirene</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal erreur job -->
+<div class="sc-overlay" id="errorModal" hidden>
+  <div class="sc-modal sc-modal-wide">
+    <h3>Erreur du job <code id="errorJobId"></code></h3>
+    <pre class="ab-error-pre" id="errorBody"></pre>
+    <div class="sc-modal-actions">
+      <button class="sc-btn" id="errorClose">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/agencies-build.js"></script>
+</body>
+</html>

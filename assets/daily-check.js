@@ -301,7 +301,7 @@
     return `
       <div class="dc-lookup-card dc-lookup-found">
         <div class="dc-lookup-card-head">
-          <span class="dc-lookup-status dc-lookup-status-ok">✅ Déjà scrapée</span>
+          <span class="dc-lookup-status dc-lookup-status-ok">Déjà scrapée</span>
           <span class="sc-pill dc-pill-source">${escapeHtml(d.source)}</span>
           <span class="sc-pill ${ssClass}">${escapeHtml(ssLabel)}</span>
         </div>

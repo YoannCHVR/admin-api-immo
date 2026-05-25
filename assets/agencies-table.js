@@ -6,6 +6,7 @@
 
   let allAgencies = [];
   let totalInDb = 0;
+  let nafLoaded = false;  // le registre NAF n'est chargé qu'une fois
 
   // ---------- Config bar ----------
 
@@ -47,6 +48,7 @@
     }
     $('resultsContainer').innerHTML = '<div class="loading">Chargement…</div>';
     try {
+      await ensureNafCodes();
       // Build server-side filters for initial load
       const params = new URLSearchParams({ per_page: '50000', page: '1' });
       // Send status filter server-side if not all checked
@@ -59,6 +61,8 @@
       if (deptVal) params.set('dept', deptVal);
       const sourceVal = $('sourceFilter').value;
       if (sourceVal) params.set('source', sourceVal);
+      const nafVal = $('nafFilter').value;
+      if (nafVal) params.set('naf', nafVal);
 
       const data = await fetchAdmin(`/admin/agencies?${params}`);
       allAgencies = data.items || [];
@@ -68,6 +72,24 @@
     } catch (e) {
       $('resultsContainer').innerHTML = `<div class="error">Erreur de chargement : ${escapeHtml(e.message)}</div>`;
       toast(e.message, 'error');
+    }
+  }
+
+  // Peuple le filtre NAF depuis le registre naf_filter (codes actifs + libellés).
+  // Chargé une seule fois ; la liste ne dépend pas des agences affichées.
+  async function ensureNafCodes() {
+    if (nafLoaded) return;
+    try {
+      const codes = await fetchAdmin('/admin/agencies/naf-codes');
+      const sel = $('nafFilter');
+      const current = sel.value;
+      sel.innerHTML = '<option value="">Tous</option>' +
+        codes.map(c => `<option value="${escapeHtml(c.code)}">${escapeHtml(c.code)} — ${escapeHtml(c.label)}</option>`).join('');
+      sel.value = current;
+      nafLoaded = true;
+    } catch (e) {
+      // Non bloquant : on garde l'option "Tous" si le registre est indisponible.
+      console.warn('NAF codes indisponibles :', e.message);
     }
   }
 
@@ -99,6 +121,7 @@
       statuses: new Set(statuses),
       dept: $('deptFilter').value,
       source: $('sourceFilter').value,
+      naf: $('nafFilter').value,
       search: $('searchFilter').value.trim().toLowerCase(),
     };
   }
@@ -108,6 +131,7 @@
       if (!f.statuses.has(a.status)) return false;
       if (f.dept && (!a.zipcode || !a.zipcode.startsWith(f.dept))) return false;
       if (f.source && a.source !== f.source) return false;
+      if (f.naf && a.naf_code !== f.naf) return false;
       if (f.search) {
         const hay = [a.name || '', a.city || '', a.address || ''].join(' ').toLowerCase();
         if (!hay.includes(f.search)) return false;
@@ -208,7 +232,7 @@
       toast('Rien à exporter', 'warn');
       return;
     }
-    const headers = ['id', 'name', 'address', 'city', 'zipcode', 'source', 'status', 'phone', 'website', 'siret', 'lat', 'lng', 'discovered_at'];
+    const headers = ['id', 'name', 'address', 'city', 'zipcode', 'source', 'status', 'naf_code', 'phone', 'website', 'siret', 'lat', 'lng', 'discovered_at'];
     const esc = v => {
       if (v == null) return '';
       const s = String(v).replace(/"/g, '""');
@@ -238,12 +262,14 @@
     document.querySelectorAll('#statusFilters input').forEach(i => i.addEventListener('change', onServerFilter));
     $('deptFilter').addEventListener('change', onServerFilter);
     $('sourceFilter').addEventListener('change', onServerFilter);
+    $('nafFilter').addEventListener('change', onServerFilter);
     $('searchFilter').addEventListener('input', debounce(onClientFilter, 200));
     $('reloadBtn').addEventListener('click', load);
     $('resetBtn').addEventListener('click', () => {
       document.querySelectorAll('#statusFilters input').forEach(i => { i.checked = true; });
       $('deptFilter').value = '';
       $('sourceFilter').value = '';
+      $('nafFilter').value = '';
       $('searchFilter').value = '';
       load();
     });

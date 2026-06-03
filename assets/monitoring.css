@@ -382,3 +382,19 @@ body {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
+
+/* ── Onglet Sauvegardes ── */
+.bk-card { padding: 14px 18px; margin-bottom: 14px; }
+.bk-schedule { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; padding-top: 8px; }
+.bk-toggle, .bk-hour { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-2); }
+.bk-hour input { width: 60px; padding: 4px 6px; border: 1px solid var(--line-2); border-radius: 6px; font-family: var(--font-mono); font-size: 13px; text-align: center; }
+.bk-table-header,
+.bk-row { display: grid; grid-template-columns: 2.4fr 1.4fr 100px 220px; gap: 12px; align-items: center; padding: 8px 16px; }
+.bk-table-header { background: var(--paper-2); border-radius: 10px 10px 0 0; font-family: var(--font-mono); font-size: 9px; color: var(--ink-4); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+.bk-row { border-top: 1px solid var(--line-1); background: var(--paper-0); font-size: 12px; }
+.bk-name { font-family: var(--font-mono); font-size: 12px; color: var(--ink-1); }
+.bk-date { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); }
+.bk-size { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); }
+.bk-actions { display: flex; gap: 6px; justify-content: flex-end; }
+.mon-btn-sm { padding: 4px 10px; font-size: 11px; }
+.mon-btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }

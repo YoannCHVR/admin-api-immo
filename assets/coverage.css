@@ -1,0 +1,102 @@
+/* Couverture filtres × scrapers — surcouche scraping.css */
+
+.cov-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; }
+
+/* Status background tints (partagé chips / cellules / barres) */
+.cov-bg-extrait { background: color-mix(in oklch, var(--success) 22%, var(--paper-0)); }
+.cov-bg-dispo   { background: color-mix(in oklch, var(--warning) 26%, var(--paper-0)); }
+.cov-bg-nok     { background: color-mix(in oklch, var(--danger) 16%, var(--paper-0)); }
+.cov-bg-unknown { background: color-mix(in oklch, var(--ink-4) 18%, var(--paper-0)); }
+
+/* ── Totaux globaux ── */
+.cov-overall { min-width: 260px; }
+.cov-overall-nums { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.cov-chip {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px; color: var(--ink-1);
+}
+.cov-overall-tot { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+.cov-bar { display: flex; height: 8px; width: 100%; border-radius: 999px; overflow: hidden; background: var(--paper-2); }
+.cov-bar-seg { height: 100%; }
+
+/* ── Toolbar ── */
+.cov-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.cov-filters { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.cov-toolbar-right { display: flex; align-items: center; gap: 8px; }
+
+.cov-seg { display: inline-flex; background: var(--paper-2); border: 1px solid var(--line-1); border-radius: 9px; padding: 2px; gap: 2px; }
+.cov-seg-btn {
+  border: 0; background: transparent; cursor: pointer; padding: 5px 11px;
+  border-radius: 7px; font-size: 12px; font-weight: 600; color: var(--ink-3); font-family: var(--font-sans);
+}
+.cov-seg-btn:hover { color: var(--ink-1); }
+.cov-seg-btn.active { background: var(--paper-0); color: var(--accent-700); box-shadow: var(--shadow-xs); }
+
+/* ── Légende ── */
+.cov-legend {
+  background: var(--paper-0); border: 1px solid var(--line-1); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column; gap: 6px;
+}
+.cov-leg-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.cov-leg-title {
+  font-family: var(--font-mono); font-size: 9px; color: var(--ink-4);
+  text-transform: uppercase; letter-spacing: 0.05em; width: 150px; flex-shrink: 0;
+}
+.cov-leg-item { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; color: var(--ink-2); }
+.cov-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.cov-glyph {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 15px; height: 15px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  color: var(--ink-2);
+}
+
+/* ── Matrice ── */
+.cov-table-wrap { overflow: auto; border: 1px solid var(--line-1); border-radius: 12px; background: var(--paper-0); max-height: 75vh; }
+.cov-table { border-collapse: separate; border-spacing: 0; width: 100%; font-size: 12px; }
+
+.cov-table th, .cov-table td { border-bottom: 1px solid var(--line-1); border-right: 1px solid var(--line-1); }
+
+/* En-tête colonnes (scrapers) */
+.cov-th-src {
+  position: sticky; top: 0; z-index: 2; background: var(--paper-2);
+  padding: 8px 6px; text-align: center; min-width: 64px; vertical-align: bottom;
+}
+.cov-th-name { display: block; font-family: var(--font-mono); font-size: 9.5px; font-weight: 600; color: var(--ink-2); word-break: break-word; line-height: 1.15; }
+.cov-th-pct { display: block; font-family: var(--font-mono); font-size: 10px; font-weight: 700; color: #0e6b3a; margin-top: 3px; }
+.cov-th-pct small { color: var(--ink-4); font-weight: 400; }
+
+/* Colonne critère (sticky left) */
+.cov-th-crit {
+  position: sticky; left: 0; z-index: 3; background: var(--paper-2);
+  text-align: left; padding: 8px 12px; min-width: 210px; max-width: 210px;
+}
+thead .cov-th-crit { z-index: 4; top: 0; }
+.cov-row-crit {
+  z-index: 1; background: var(--paper-1);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.cov-crit-key { font-family: var(--font-mono); font-size: 11px; color: var(--ink-1); font-weight: 500; }
+.cov-crit-count { font-family: var(--font-mono); font-size: 9px; color: var(--ink-4); flex-shrink: 0; }
+
+/* Cellules */
+.cov-cell { text-align: center; padding: 0; height: 30px; }
+.cov-cell .cov-glyph { width: 100%; height: 30px; color: var(--ink-2); }
+.cov-dim { opacity: 0.18; }
+
+/* Mode "Réel (base)" — taux mesurés */
+.cov-cell-val { display: flex; align-items: center; justify-content: center; height: 30px; font-family: var(--font-mono); font-size: 10px; font-weight: 600; color: var(--ink-1); }
+.cov-rate-hi  { background: color-mix(in oklch, var(--success) 22%, var(--paper-0)); }
+.cov-rate-mid { background: color-mix(in oklch, var(--warning) 26%, var(--paper-0)); }
+.cov-rate-lo  { background: color-mix(in oklch, var(--danger) 18%, var(--paper-0)); }
+.cov-cell-na  { background: var(--paper-2); }
+.cov-cell-na .cov-cell-val { color: var(--ink-5); }
+.cov-cell-insuf { background: repeating-linear-gradient(45deg, var(--paper-1), var(--paper-1) 5px, var(--paper-2) 5px, var(--paper-2) 10px); }
+.cov-cell-insuf .cov-cell-val { color: var(--ink-4); }
+.cov-th-insuf { color: var(--ink-4) !important; }
+.cov-crit-na { color: var(--ink-4); font-style: italic; }
+.cov-live-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-4); }
+
+@media (max-width: 700px) {
+  .cov-th-crit { min-width: 140px; max-width: 140px; }
+  .cov-leg-title { width: 100%; }
+}

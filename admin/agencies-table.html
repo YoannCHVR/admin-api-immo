@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestionnaire — Tableau agences par CP</title>
   <link rel="stylesheet" href="../assets/style.css">
+  <style>
+    /* Sélecteur de statut dans le tableau — repère couleur par statut */
+    .agency-status-select { padding: 3px 8px; border-radius: 4px; font-size: 12px; font-family: inherit; background: #fff; cursor: pointer; border: 1px solid #ccc; }
+    .agency-status-select:hover { border-color: #888; }
+    .agency-status-select:disabled { opacity: 0.5; cursor: wait; }
+    .agency-status-pending    { border-left: 3px solid #f0ad4e; }
+    .agency-status-to_scrape  { border-left: 3px solid #5bc0de; }
+    .agency-status-scraped    { border-left: 3px solid #5cb85c; }
+    .agency-status-skip       { border-left: 3px solid #d9534f; }
+    .agency-status-closed     { border-left: 3px solid #888; }
+  </style>
 </head>
 <body>
 

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestionnaire — Couverture filtres × scrapers</title>
+  <link rel="stylesheet" href="../assets/design-tokens.css">
+  <link rel="stylesheet" href="../assets/scraping.css">
+  <link rel="stylesheet" href="../assets/coverage.css">
+</head>
+<body>
+
+<header class="sc-topbar">
+  <div class="sc-topbar-left">
+    <span class="sc-logo">S</span>
+    <div class="sc-topbar-sep"></div>
+    <nav class="sc-nav">
+      <a href="../index.html" class="sc-nav-link">Hub</a>
+      <a href="scraping.html" class="sc-nav-link">Scraping</a>
+      <a href="#" class="sc-nav-link active">Couverture filtres</a>
+    </nav>
+  </div>
+  <div class="sc-topbar-right">
+    <div class="sc-health" id="healthPill"><span class="sc-health-dot" id="healthDot"></span><span id="healthText">…</span></div>
+    <input type="text" id="apiUrl" class="sc-input-dark" placeholder="API URL" autocomplete="off">
+    <input type="password" id="adminToken" class="sc-input-dark" placeholder="X-Admin-Token" autocomplete="off">
+    <button id="saveConfig" class="sc-save-btn" type="button">OK</button>
+  </div>
+</header>
+
+<main class="sc-main">
+
+  <div class="dc-hero cov-hero">
+    <div>
+      <h1 class="dc-title">Couverture filtres × scrapers</h1>
+      <p class="dc-subtitle">Par source, ce qu'on extrait, ce qu'on loupe alors que c'est disponible, et comment on le récupère. Référence : tableau Miro « Couverture filtres × scrapers ».</p>
+    </div>
+    <div class="cov-overall" id="covOverall"></div>
+  </div>
+
+  <!-- Toolbar -->
+  <section class="cov-toolbar">
+    <div class="cov-filters">
+      <div class="cov-seg" id="modeSeg" role="tablist" aria-label="Vue">
+        <button class="cov-seg-btn active" data-mode="ref">Référence (Miro)</button>
+        <button class="cov-seg-btn" data-mode="live">Réel (base)</button>
+      </div>
+      <select id="fSource" class="sc-filter-input"><option value="">Toutes sources</option></select>
+      <input type="text" id="fCrit" class="sc-filter-input" placeholder="Filtrer un critère…">
+      <div class="cov-seg" id="stateSeg" role="tablist" aria-label="État">
+        <button class="cov-seg-btn active" data-state="">Tous</button>
+        <button class="cov-seg-btn" data-state="extrait">Extrait</button>
+        <button class="cov-seg-btn" data-state="dispo">Dispo</button>
+        <button class="cov-seg-btn" data-state="nok">NOK</button>
+        <button class="cov-seg-btn" data-state="unknown">Indét.</button>
+      </div>
+    </div>
+    <div class="cov-toolbar-right">
+      <span class="cov-live-meta" id="liveMeta"></span>
+      <button class="sc-btn sc-btn-sm" id="refreshBtn">↻ Actualiser</button>
+    </div>
+  </section>
+
+  <!-- Legend -->
+  <section class="cov-legend" id="legend"></section>
+
+  <!-- Matrix -->
+  <section class="cov-table-wrap">
+    <div id="matrix"><div class="sc-empty">Configure le token admin puis rafraîchis.</div></div>
+  </section>
+
+</main>
+
+<script src="../assets/common.js"></script>
+<script src="../assets/coverage.js"></script>
+</body>
+</html>

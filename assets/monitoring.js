@@ -45,7 +45,131 @@
         link.classList.add('active');
         $('tabMonitoring').hidden = tab !== 'monitoring';
         $('tabRaw').hidden = tab !== 'raw';
+        $('tabBackups').hidden = tab !== 'backups';
+        if (tab === 'backups') loadBackups();
       });
+    });
+  }
+
+  // ── Sauvegardes DB ──
+
+  function fmtSize(n) {
+    if (n == null) return '—';
+    if (n < 1024) return `${n} o`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} Ko`;
+    if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} Mo`;
+    return `${(n / 1024 / 1024 / 1024).toFixed(2)} Go`;
+  }
+
+  function fmtDateTime(iso) {
+    if (!iso) return '—';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function loadBackups() {
+    if (!getAdminToken()) { $('bkList').innerHTML = '<div class="mon-empty">Configure le token admin.</div>'; return; }
+    try {
+      const [list, sched] = await Promise.all([
+        fetchAdmin('/admin/backups'),
+        fetchAdmin('/admin/backups/schedule'),
+      ]);
+      if (list.dir) $('bkDir').textContent = list.dir;
+      $('bkEnabled').checked = !!sched.enabled;
+      $('bkHour').value = sched.hour;
+      $('bkNext').textContent = sched.enabled && sched.next_run
+        ? `Prochaine exécution : ${fmtDateTime(sched.next_run)}`
+        : (sched.enabled ? 'Programmé' : 'Désactivé');
+      renderBackups(list.items || []);
+    } catch (e) {
+      $('bkList').innerHTML = `<div class="mon-empty" style="color:var(--danger)">${escapeHtml(e.message)}</div>`;
+    }
+  }
+
+  function renderBackups(items) {
+    $('bkCount').textContent = `${items.length} sauvegarde${items.length !== 1 ? 's' : ''}`;
+    if (!items.length) { $('bkList').innerHTML = '<div class="mon-empty">Aucune sauvegarde pour le moment.</div>'; return; }
+    $('bkList').innerHTML = items.map(it => `
+      <div class="bk-row">
+        <span class="bk-name">${escapeHtml(it.name)}</span>
+        <span class="bk-date">${fmtDateTime(it.created_at)}</span>
+        <span class="bk-size">${fmtSize(it.size)}</span>
+        <span class="bk-actions">
+          <button class="mon-btn mon-btn-sm" data-bk-dl="${escapeHtml(it.name)}">Télécharger</button>
+          <button class="mon-btn mon-btn-sm mon-btn-danger" data-bk-rm="${escapeHtml(it.name)}">Supprimer</button>
+        </span>
+      </div>`).join('');
+  }
+
+  async function runBackup() {
+    if (!confirm('Lancer une sauvegarde immédiate ?')) return;
+    const btn = $('bkRunBtn'); const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = 'Sauvegarde…';
+    try {
+      const res = await fetchAdmin('/admin/backups', { method: 'POST' });
+      toast(`Sauvegarde créée : ${res.name} (${fmtSize(res.size)})`, 'success');
+      await loadBackups();
+    } catch (e) {
+      toast(`Erreur : ${e.message}`, 'error');
+    } finally {
+      btn.disabled = false; btn.textContent = orig;
+    }
+  }
+
+  async function saveSchedule() {
+    const enabled = $('bkEnabled').checked;
+    const hour = Math.max(0, Math.min(23, parseInt($('bkHour').value, 10) || 0));
+    try {
+      const res = await fetchAdmin('/admin/backups/schedule', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled, hour }),
+      });
+      $('bkNext').textContent = res.enabled && res.next_run
+        ? `Prochaine exécution : ${fmtDateTime(res.next_run)}`
+        : (res.enabled ? 'Programmé' : 'Désactivé');
+      toast(enabled ? `Cron actif à ${String(hour).padStart(2, '0')}:00` : 'Cron désactivé', 'success');
+    } catch (e) {
+      toast(`Erreur : ${e.message}`, 'error');
+    }
+  }
+
+  async function downloadBackup(name) {
+    // fetch avec X-Admin-Token, puis on déclenche le téléchargement côté navigateur
+    try {
+      const res = await fetch(getApiUrl() + `/admin/backups/${encodeURIComponent(name)}/download`, {
+        headers: { 'X-Admin-Token': getAdminToken() },
+      });
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast(`Erreur téléchargement : ${e.message}`, 'error');
+    }
+  }
+
+  async function deleteBackup(name) {
+    if (!confirm(`Supprimer ${name} ? Action irréversible.`)) return;
+    try {
+      await fetchAdmin(`/admin/backups/${encodeURIComponent(name)}`, { method: 'DELETE' });
+      toast(`Supprimée : ${name}`, 'success');
+      loadBackups();
+    } catch (e) { toast(`Erreur : ${e.message}`, 'error'); }
+  }
+
+  function wireBackups() {
+    $('bkRunBtn').addEventListener('click', runBackup);
+    $('bkRefreshBtn').addEventListener('click', loadBackups);
+    $('bkSaveBtn').addEventListener('click', saveSchedule);
+    $('bkList').addEventListener('click', (e) => {
+      const dl = e.target.closest('[data-bk-dl]');
+      if (dl) return downloadBackup(dl.dataset.bkDl);
+      const rm = e.target.closest('[data-bk-rm]');
+      if (rm) return deleteBackup(rm.dataset.bkRm);
     });
   }
 
@@ -130,17 +254,21 @@
       return;
     }
 
-    $('jobsList').innerHTML = jobs.map(j => `
+    $('jobsList').innerHTML = jobs.map(j => {
+      const id = j.job_id || j.id || '—';
+      const name = j.source || j.name || id;
+      const interval = j.interval_seconds ? `${Math.round(j.interval_seconds / 60)} min` : '—';
+      return `
       <div class="mon-job-row">
-        <span class="mon-job-id">${escapeHtml(j.id)}</span>
+        <span class="mon-job-id">${escapeHtml(id)}</span>
         <div>
-          <div class="mon-job-name">${escapeHtml(j.name)}</div>
+          <div class="mon-job-name">${escapeHtml(name)}</div>
         </div>
-        <span class="mon-job-stage">—</span>
+        <span class="mon-job-stage">${escapeHtml(interval)}</span>
         <span class="mon-job-eta">${j.next_run ? new Date(j.next_run).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
         <span class="mon-pill mon-pill-ok"><span class="mon-pill-dot"></span>planifié</span>
-      </div>
-    `).join('');
+      </div>`;
+    }).join('');
   }
 
   // ── Logs panel (simulated from real events) ──
@@ -224,19 +352,20 @@
       $('jobsList').innerHTML = '<div class="mon-empty">Configure le token admin.</div>';
       return;
     }
-    try {
-      const [sourcesData, statusData] = await Promise.all([
-        fetchAdmin('/scrapers/sources'),
-        fetchAdmin('/scrapers/scheduler/status'),
-      ]);
-      const sources = sourcesData.sources || [];
-      renderKpis(sources, statusData);
-      renderJobs(statusData);
-      renderSourceHealth(sources);
+    // Promise.allSettled : un endpoint fautif ne doit pas blanker toute la page.
+    const [srcRes, statusRes] = await Promise.allSettled([
+      fetchAdmin('/scrapers/sources'),
+      fetchAdmin('/admin/scrapers/scheduler/status'),
+    ]);
+    const sources = srcRes.status === 'fulfilled' ? (srcRes.value.sources || []) : [];
+    const statusData = statusRes.status === 'fulfilled' ? statusRes.value : { running: false, jobs: [] };
+    renderKpis(sources, statusData);
+    renderJobs(statusData);
+    renderSourceHealth(sources);
+    if (srcRes.status === 'rejected') { addLog('error', 'monitoring', `sources : ${srcRes.reason.message}`, 'LOAD_ERR'); toast(srcRes.reason.message, 'error'); }
+    if (statusRes.status === 'rejected') { addLog('error', 'monitoring', `scheduler/status : ${statusRes.reason.message}`, 'LOAD_ERR'); toast(statusRes.reason.message, 'error'); }
+    if (srcRes.status === 'fulfilled' && statusRes.status === 'fulfilled') {
       addLog('info', 'monitoring', `Données chargées — ${sources.length} sources`, 'DATA_OK');
-    } catch (e) {
-      addLog('error', 'monitoring', `Erreur chargement : ${e.message}`, 'LOAD_ERR');
-      toast(e.message, 'error');
     }
   }
 
@@ -250,6 +379,7 @@
   // ── Init ──
   initConfig();
   initTabs();
+  wireBackups();
   initLogFilters();
   renderLogs();
   pingHealth();

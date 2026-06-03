@@ -191,7 +191,9 @@
           <td>${escapeHtml(a.city)}</td>
           <td class="col-addr">${escapeHtml(a.address)}</td>
           <td><code>${escapeHtml(a.source)}</code></td>
-          <td><span class="badge badge-${escapeHtml(a.status)}">${escapeHtml(a.status)}</span></td>
+          <td><select class="agency-status-select agency-status-${escapeHtml(a.status)}" data-id="${a.id}" data-current="${escapeHtml(a.status)}" title="Changer le statut de cette agence">
+            ${STATUS_ORDER.map(s => `<option value="${s}"${s===a.status?' selected':''}>${s}</option>`).join('')}
+          </select></td>
           <td>${a.phone ? `<a href="tel:${escapeHtml(a.phone)}">${escapeHtml(a.phone)}</a>` : '—'}</td>
           <td>${a.website ? `<a href="${escapeHtml(a.website)}" target="_blank" rel="noopener">lien</a>` : '—'}</td>
           <td><a href="${escapeHtml(getApiUrl())}/admin/agencies/${a.id}" target="_blank" rel="noopener">#${a.id}</a></td>
@@ -254,6 +256,34 @@
     toast(`${filtered.length} ligne(s) exportées`, 'success');
   }
 
+  // ---------- Changement de statut (PATCH /admin/agencies/{id}) ----------
+
+  async function onStatusChange(e) {
+    const sel = e.target.closest('.agency-status-select');
+    if (!sel) return;
+    const id = Number(sel.dataset.id);
+    const prev = sel.dataset.current;
+    const next = sel.value;
+    if (!next || next === prev) return;
+    sel.disabled = true;
+    try {
+      const updated = await fetchAdmin(`/admin/agencies/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: next }),
+      });
+      const a = allAgencies.find(x => x.id === id);
+      if (a) Object.assign(a, updated);
+      toast(`Agence #${id} : ${prev} → ${next}`, 'success');
+      render();   // refresh badges/stats (l'agence peut disparaître si le statut n'est plus coché)
+    } catch (err) {
+      sel.value = prev;   // revert
+      toast(`Erreur : ${err.message}`, 'error');
+    } finally {
+      sel.disabled = false;
+    }
+  }
+
   // ---------- Wire ----------
 
   function wireFilters() {
@@ -280,6 +310,7 @@
 
   initConfigBar();
   wireFilters();
+  $('resultsContainer').addEventListener('change', onStatusChange);
   pingHealth();
   load();
 })();

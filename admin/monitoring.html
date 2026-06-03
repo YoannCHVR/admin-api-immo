@@ -17,6 +17,7 @@
       <a href="../index.html" class="mon-nav-link">Hub</a>
       <a href="#" class="mon-nav-link active" data-tab="monitoring">Monitoring & Logs</a>
       <a href="#" class="mon-nav-link" data-tab="raw">Annonces brutes</a>
+      <a href="#" class="mon-nav-link" data-tab="backups">Sauvegardes</a>
     </nav>
   </div>
   <div class="mon-topbar-right">
@@ -84,6 +85,48 @@
       <span>Source</span><span>Tier</span><span>Statut config</span><span>Méthode</span><span>Dernier run</span><span>État</span>
     </div>
     <div id="sourceHealthRows"></div>
+  </section>
+</main>
+
+<!-- BACKUPS TAB -->
+<main id="tabBackups" class="mon-main" hidden>
+  <header class="mon-page-header">
+    <div>
+      <div class="mon-overline">Pipeline · ops</div>
+      <h1 class="mon-title">Sauvegardes base de données</h1>
+      <p class="mon-subtitle">Backups locaux <code>pg_dump</code> compressés, dans <code id="bkDir">/app/backups</code>. Cron quotidien réglable depuis ici.</p>
+    </div>
+    <div class="mon-header-actions">
+      <button id="bkRunBtn" class="mon-btn mon-btn-primary">⤓ Sauvegarder maintenant</button>
+      <button id="bkRefreshBtn" class="mon-btn">↻ Rafraîchir</button>
+    </div>
+  </header>
+
+  <!-- Cron quotidien -->
+  <section class="mon-panel mon-panel-light bk-card">
+    <div class="mon-panel-header">
+      <h2 class="mon-panel-title">Cron quotidien</h2>
+      <span class="mon-panel-meta" id="bkNext">…</span>
+    </div>
+    <div class="bk-schedule">
+      <label class="bk-toggle"><input type="checkbox" id="bkEnabled"> Activer la sauvegarde quotidienne</label>
+      <label class="bk-hour">Heure (0–23, Europe/Paris) :
+        <input type="number" id="bkHour" min="0" max="23" step="1" value="2">
+      </label>
+      <button id="bkSaveBtn" class="mon-btn mon-btn-primary">Enregistrer</button>
+    </div>
+  </section>
+
+  <!-- Liste des sauvegardes -->
+  <section class="mon-panel mon-panel-light">
+    <div class="mon-panel-header">
+      <h2 class="mon-panel-title">Sauvegardes disponibles</h2>
+      <span class="mon-panel-meta" id="bkCount">0</span>
+    </div>
+    <div class="bk-table-header">
+      <span>Fichier</span><span>Date / heure</span><span>Taille</span><span>Actions</span>
+    </div>
+    <div id="bkList"><div class="mon-empty">…</div></div>
   </section>
 </main>
 
